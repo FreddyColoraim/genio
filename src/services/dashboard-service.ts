@@ -119,8 +119,8 @@ function buildMetrics(employeeRows: EmployeeRow[], documentRows: EmployeeDocumen
         employeeRows.reduce((total, employee) => total + employee.progress, 0) / totalEmployees
       )
     : 0;
-  const pendingDocuments = documentRows.filter((document) => document.status !== "signed");
-  const reviewDocuments = documentRows.filter((document) => document.status === "review");
+  const documentsToHandle = documentRows.filter((document) => document.status !== "signed");
+  const receivedDocuments = documentRows.filter((document) => document.status === "review");
   const startsThisMonth = employeeRows.filter((employee) => isInCurrentMonth(employee.start_date));
 
   return [
@@ -138,8 +138,8 @@ function buildMetrics(employeeRows: EmployeeRow[], documentRows: EmployeeDocumen
     },
     {
       label: "Documents en attente",
-      value: String(pendingDocuments.length),
-      detail: `${reviewDocuments.length} à vérifier`,
+      value: String(documentsToHandle.length),
+      detail: `${receivedDocuments.length} reçus à valider`,
       tone: "lavender"
     },
     {

@@ -21,7 +21,7 @@ export default async function DashboardPage() {
             moments qui demandent une attention RH.
           </p>
         </div>
-        <UploadDocumentModal />
+        <UploadDocumentModal employees={employees} />
       </div>
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {metrics.map((metric) => (
