@@ -2,6 +2,16 @@
 
 Nexo RH est une plateforme SaaS moderne d'onboarding RH construite avec Next.js 15, TypeScript, TailwindCSS, des composants shadcn-style et Supabase.
 
+## Vision produit
+
+Le stack produit V1/V2 est documenté dans [`NEXO_STACK.md`](./NEXO_STACK.md).
+
+Nexo fluidifie le passage:
+
+```text
+besoin RH -> recrutement -> integration collaborateur
+```
+
 ## Démarrage
 
 ```bash

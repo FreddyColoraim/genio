@@ -10,6 +10,12 @@ export function EmployeeList({ employees }: { employees: Employee[] }) {
         <CardTitle>Liste des collaborateurs</CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
+        {employees.length === 0 ? (
+          <div className="rounded-lg border border-dashed bg-white p-6 text-sm text-muted-foreground">
+            Aucun collaborateur visible pour le moment. Ajoutez des employés dans Supabase pour
+            alimenter cette vue.
+          </div>
+        ) : null}
         {employees.map((employee) => (
           <div
             className="grid gap-4 rounded-lg border bg-white p-4 md:grid-cols-[1.4fr_1fr_0.8fr_0.8fr]"

@@ -1,7 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
-type Metric = {
+export type Metric = {
   label: string;
   value: string;
   detail: string;

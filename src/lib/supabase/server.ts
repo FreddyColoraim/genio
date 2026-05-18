@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import { createServerClient } from "@supabase/ssr";
 import type { ResponseCookie } from "next/dist/compiled/@edge-runtime/cookies";
+import { requireSupabasePublicEnv } from "./env";
 
 type SupabaseCookieToSet = {
   name: string;
@@ -9,11 +10,12 @@ type SupabaseCookieToSet = {
 };
 
 export async function createClient() {
+  const env = requireSupabasePublicEnv();
   const cookieStore = await cookies();
 
   return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    env.url,
+    env.anonKey,
     {
       cookies: {
         getAll() {

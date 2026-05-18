@@ -12,6 +12,13 @@ export function EmployeeOnboardingCards({ employees }: { employees: Employee[] }
         <p className="text-sm text-muted-foreground">{employees.length} parcours actifs</p>
       </div>
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+        {employees.length === 0 ? (
+          <Card className="md:col-span-2 xl:col-span-3">
+            <CardContent className="p-6 text-sm text-muted-foreground">
+              Aucun parcours d'onboarding n'est encore disponible.
+            </CardContent>
+          </Card>
+        ) : null}
         {employees.map((employee) => (
           <Card key={employee.id}>
             <CardHeader className="pb-3">

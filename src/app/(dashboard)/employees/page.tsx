@@ -1,16 +1,24 @@
+import { AddEmployeeModal } from "@/components/dashboard/add-employee-modal";
 import { EmployeeList } from "@/components/dashboard/employee-list";
-import { mockEmployees } from "@/lib/mock-data";
+import { getDashboardData } from "@/services/dashboard-service";
 
-export default function EmployeesPage() {
+export const dynamic = "force-dynamic";
+
+export default async function EmployeesPage() {
+  const { employees } = await getDashboardData();
+
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-semibold tracking-normal">Collaborateurs</h2>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Une vue par rôle de tous les parcours d'onboarding actifs.
-        </p>
+      <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
+        <div>
+          <h2 className="text-2xl font-semibold tracking-normal">Collaborateurs</h2>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Une vue par rôle de tous les parcours d'onboarding actifs.
+          </p>
+        </div>
+        <AddEmployeeModal />
       </div>
-      <EmployeeList employees={mockEmployees} />
+      <EmployeeList employees={employees} />
     </div>
   );
 }

@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { provisionSignupWorkspace } from "@/services/workspace-service";
 
 export async function signIn(formData: FormData) {
   const supabase = await createClient();
@@ -23,7 +24,7 @@ export async function signUp(formData: FormData) {
   const password = String(formData.get("password") ?? "");
   const workspace = String(formData.get("workspace") ?? "");
 
-  const { error } = await supabase.auth.signUp({
+  const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
@@ -35,6 +36,21 @@ export async function signUp(formData: FormData) {
 
   if (error) {
     redirect("/signup?error=signup_failed");
+  }
+
+  if (!data.user) {
+    redirect("/signup?error=signup_failed");
+  }
+
+  try {
+    await provisionSignupWorkspace({
+      email,
+      userId: data.user.id,
+      workspaceName: workspace
+    });
+  } catch (provisionError) {
+    console.error(provisionError);
+    redirect("/signup?error=workspace_setup_failed");
   }
 
   redirect("/dashboard");

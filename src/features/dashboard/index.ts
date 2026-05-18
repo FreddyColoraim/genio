@@ -1,3 +1,4 @@
+export { AddEmployeeModal } from "@/components/dashboard/add-employee-modal";
 export { EmployeeList } from "@/components/dashboard/employee-list";
 export { EmployeeOnboardingCards } from "@/components/dashboard/employee-onboarding-cards";
 export { MetricCard } from "@/components/dashboard/metric-card";
