@@ -1,5 +1,6 @@
 "use server";
 
+import type { AuthError } from "@supabase/supabase-js";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { provisionSignupWorkspace } from "@/services/workspace-service";
@@ -74,8 +75,8 @@ export async function signUp(formData: FormData) {
   redirect("/dashboard");
 }
 
-function getSignupErrorCode(error: { code?: string; message?: string }) {
-  const message = error.message?.toLowerCase() ?? "";
+function getSignupErrorCode(error: AuthError) {
+  const message = error.message.toLowerCase();
 
   if (error.code === "weak_password" || message.includes("password")) {
     return "weak_password";
@@ -96,8 +97,8 @@ function getSignupErrorCode(error: { code?: string; message?: string }) {
   return "signup_failed";
 }
 
-function getSigninErrorCode(error: { code?: string; message?: string }) {
-  const message = error.message?.toLowerCase() ?? "";
+function getSigninErrorCode(error: AuthError) {
+  const message = error.message.toLowerCase();
 
   if (message.includes("email not confirmed") || message.includes("not confirmed")) {
     return "email_not_confirmed";
