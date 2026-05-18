@@ -20,9 +20,13 @@ export async function signIn(formData: FormData) {
 
 export async function signUp(formData: FormData) {
   const supabase = await createClient();
-  const email = String(formData.get("email") ?? "");
+  const email = String(formData.get("email") ?? "").trim();
   const password = String(formData.get("password") ?? "");
-  const workspace = String(formData.get("workspace") ?? "");
+  const workspace = String(formData.get("workspace") ?? "").trim();
+
+  if (!workspace || !email || password.length < 6) {
+    redirect("/signup?error=invalid_signup_fields");
+  }
 
   const { data, error } = await supabase.auth.signUp({
     email,
@@ -35,7 +39,12 @@ export async function signUp(formData: FormData) {
   });
 
   if (error) {
-    redirect("/signup?error=signup_failed");
+    console.error("Supabase signup failed", {
+      code: error.code,
+      message: error.message,
+      status: error.status
+    });
+    redirect(`/signup?error=${getSignupErrorCode(error)}`);
   }
 
   if (!data.user) {
@@ -54,4 +63,26 @@ export async function signUp(formData: FormData) {
   }
 
   redirect("/dashboard");
+}
+
+function getSignupErrorCode(error: { code?: string; message?: string }) {
+  const message = error.message?.toLowerCase() ?? "";
+
+  if (error.code === "weak_password" || message.includes("password")) {
+    return "weak_password";
+  }
+
+  if (message.includes("already") || message.includes("registered")) {
+    return "email_already_registered";
+  }
+
+  if (message.includes("invalid") && message.includes("email")) {
+    return "invalid_email";
+  }
+
+  if (message.includes("signup") && message.includes("disabled")) {
+    return "signup_disabled";
+  }
+
+  return "signup_failed";
 }

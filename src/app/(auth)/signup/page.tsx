@@ -5,7 +5,24 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-export default function SignupPage() {
+const signupErrorMessages: Record<string, string> = {
+  email_already_registered: "Cet email est déjà associé à un compte.",
+  invalid_email: "L'adresse email n'est pas valide.",
+  invalid_signup_fields: "Renseignez un workspace, un email valide et un mot de passe de 6 caractères minimum.",
+  signup_disabled: "Les inscriptions sont désactivées côté Supabase Auth.",
+  signup_failed: "L'inscription a échoué. Vérifiez les paramètres Supabase Auth.",
+  weak_password: "Le mot de passe doit contenir au moins 6 caractères.",
+  workspace_setup_failed: "Le compte a été créé, mais la création du workspace a échoué."
+};
+
+export default async function SignupPage({
+  searchParams
+}: {
+  searchParams: Promise<{ error?: string }>;
+}) {
+  const { error } = await searchParams;
+  const errorMessage = error ? signupErrorMessages[error] : null;
+
   return (
     <AuthCard
       title="Créer votre espace"
@@ -20,17 +37,29 @@ export default function SignupPage() {
       }
     >
       <form action={signUp} className="space-y-4">
+        {errorMessage ? (
+          <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+            {errorMessage}
+          </div>
+        ) : null}
         <div className="space-y-2">
           <Label htmlFor="workspace">Espace de travail</Label>
-          <Input id="workspace" name="workspace" placeholder="Acme People" />
+          <Input id="workspace" name="workspace" placeholder="Acme People" required />
         </div>
         <div className="space-y-2">
           <Label htmlFor="email">Email professionnel</Label>
-          <Input id="email" name="email" placeholder="people@company.com" type="email" />
+          <Input id="email" name="email" placeholder="people@company.com" required type="email" />
         </div>
         <div className="space-y-2">
           <Label htmlFor="password">Mot de passe</Label>
-          <Input id="password" name="password" placeholder="********" type="password" />
+          <Input
+            id="password"
+            minLength={6}
+            name="password"
+            placeholder="********"
+            required
+            type="password"
+          />
         </div>
         <Button className="w-full" type="submit">
           Démarrer l'onboarding
