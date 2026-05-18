@@ -1,5 +1,6 @@
 import type { Employee, OnboardingStatus } from "@/types/employee";
 import type { Metric } from "@/components/dashboard/metric-card";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
 type EmployeeRow = {
@@ -17,6 +18,10 @@ type EmployeeRow = {
 type EmployeeDocumentRow = {
   employee_id: string;
   status: "pending" | "review" | "signed";
+};
+
+type ProfileRow = {
+  workspace_id: string | null;
 };
 
 export type DashboardData = {
@@ -38,18 +43,36 @@ const frenchDateFormatter = new Intl.DateTimeFormat("fr-FR", {
 });
 
 export async function getDashboardData(): Promise<DashboardData> {
-  const supabase = await createClient();
-  const { data: userData } = await supabase.auth.getUser();
+  const sessionClient = await createClient();
+  const { data: userData } = await sessionClient.auth.getUser();
 
   if (!userData.user) {
     return buildDashboardData([], []);
   }
 
-  const { data: employeeRows, error: employeesError } = await supabase
+  const adminClient = createAdminClient();
+  const { data: profile, error: profileError } = await adminClient
+    .from("profiles")
+    .select("workspace_id")
+    .eq("id", userData.user.id)
+    .single();
+
+  if (profileError) {
+    throw new Error(`Unable to load dashboard profile: ${profileError.message}`);
+  }
+
+  const typedProfile = profile as ProfileRow;
+
+  if (!typedProfile.workspace_id) {
+    return buildDashboardData([], []);
+  }
+
+  const { data: employeeRows, error: employeesError } = await adminClient
     .from("employees")
     .select(
       "id, full_name, email, title, department, manager_name, start_date, status, progress"
     )
+    .eq("workspace_id", typedProfile.workspace_id)
     .order("start_date", { ascending: true });
 
   if (employeesError) {
@@ -63,9 +86,10 @@ export async function getDashboardData(): Promise<DashboardData> {
     return buildDashboardData([], []);
   }
 
-  const { data: documentRows, error: documentsError } = await supabase
+  const { data: documentRows, error: documentsError } = await adminClient
     .from("employee_documents")
     .select("employee_id, status")
+    .eq("workspace_id", typedProfile.workspace_id)
     .in("employee_id", employeeIds);
 
   if (documentsError) {

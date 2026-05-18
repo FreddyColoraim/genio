@@ -55,20 +55,23 @@ type DocumentRow = {
 };
 
 export async function getDocumentsData(): Promise<DocumentsData> {
-  const supabase = await createClient();
+  const { workspaceId } = await getCurrentProfile();
+  const adminClient = createAdminClient();
 
-  const { data: employeeRows, error: employeesError } = await supabase
+  const { data: employeeRows, error: employeesError } = await adminClient
     .from("employees")
     .select("id, full_name")
+    .eq("workspace_id", workspaceId)
     .order("full_name", { ascending: true });
 
   if (employeesError) {
     throw new Error(`Unable to load document employees: ${employeesError.message}`);
   }
 
-  const { data: documentRows, error: documentsError } = await supabase
+  const { data: documentRows, error: documentsError } = await adminClient
     .from("employee_documents")
     .select("id, employee_id, name, status, storage_path, created_at, employees(full_name)")
+    .eq("workspace_id", workspaceId)
     .order("created_at", { ascending: false });
 
   if (documentsError) {
