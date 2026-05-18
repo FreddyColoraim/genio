@@ -14,6 +14,9 @@ create table public.profiles (
 create table public.workspaces (
   id uuid primary key default gen_random_uuid(),
   name text not null,
+  industry text,
+  team_size text,
+  operating_mode text,
   created_by uuid references public.profiles(id),
   created_at timestamptz not null default now()
 );

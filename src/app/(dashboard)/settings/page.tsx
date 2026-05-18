@@ -1,6 +1,12 @@
 import { RoleMatrix } from "@/components/dashboard/role-matrix";
+import { WorkspaceProfileForm } from "@/components/dashboard/workspace-profile-form";
+import { getWorkspaceProfile } from "@/services/workspace-service";
 
-export default function SettingsPage() {
+export const dynamic = "force-dynamic";
+
+export default async function SettingsPage() {
+  const workspaceProfile = await getWorkspaceProfile();
+
   return (
     <div className="space-y-6">
       <div>
@@ -9,6 +15,7 @@ export default function SettingsPage() {
           Configurez les accès et responsabilités des RH, managers et collaborateurs.
         </p>
       </div>
+      <WorkspaceProfileForm profile={workspaceProfile} />
       <RoleMatrix />
     </div>
   );

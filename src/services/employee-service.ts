@@ -2,6 +2,7 @@ import { z } from "zod";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import type { UserRole } from "@/types/roles";
+import type { WorkspaceIndustry } from "@/types/workspace";
 
 const employeeInputSchema = z.object({
   fullName: z.string().trim().min(2),
@@ -17,9 +18,18 @@ type ProfileRow = {
   workspace_id: string | null;
 };
 
+type WorkspaceRow = {
+  industry: WorkspaceIndustry | null;
+};
+
 const employeeWriteRoles = new Set<UserRole>(["admin", "hr", "manager"]);
 
-const defaultOnboardingSteps = [
+type OnboardingStepTemplate = {
+  description: string;
+  title: string;
+};
+
+const commonOnboardingSteps: OnboardingStepTemplate[] = [
   {
     title: "Candidature validée",
     description: "Confirmer le passage du candidat vers le parcours d'arrivée."
@@ -35,12 +45,92 @@ const defaultOnboardingSteps = [
   {
     title: "Documents d'arrivée demandés",
     description: "Demander les documents nécessaires au dossier RH."
-  },
-  {
-    title: "Jour d'arrivée préparé",
-    description: "Vérifier le planning, le matériel et les accès de base."
   }
 ] as const;
+
+const onboardingTemplates: Record<WorkspaceIndustry, OnboardingStepTemplate[]> = {
+  restaurant: [
+    ...commonOnboardingSteps,
+    {
+      title: "Planning de service confirmé",
+      description: "Valider les horaires, l'équipe de rattachement et le premier shift."
+    },
+    {
+      title: "Tenue et consignes terrain préparées",
+      description: "Préparer tenue, badge, règles d'hygiène et consignes sécurité."
+    },
+    {
+      title: "Brief manager avant service",
+      description: "Prévoir un point court avec le manager avant la première prise de poste."
+    }
+  ],
+  services: [
+    ...commonOnboardingSteps,
+    {
+      title: "Première mission cadrée",
+      description: "Définir le client, le périmètre et les attendus de la première intervention."
+    },
+    {
+      title: "Outils métier configurés",
+      description: "Préparer les accès aux outils, modèles et documents opérationnels."
+    },
+    {
+      title: "Point qualité planifié",
+      description: "Prévoir un point après les premiers jours pour ajuster les pratiques."
+    }
+  ],
+  transport: [
+    ...commonOnboardingSteps,
+    {
+      title: "Permis et habilitations vérifiés",
+      description: "Contrôler les permis, attestations et documents nécessaires à l'activité."
+    },
+    {
+      title: "Planning tournée / dépôt confirmé",
+      description: "Valider le dépôt, la tournée ou la zone de rattachement."
+    },
+    {
+      title: "Consignes sécurité transmises",
+      description: "Partager les règles sécurité, procédures incident et contacts clés."
+    }
+  ],
+  retail: [
+    ...commonOnboardingSteps,
+    {
+      title: "Planning magasin confirmé",
+      description: "Valider les horaires, le magasin et le responsable d'accueil."
+    },
+    {
+      title: "Formation caisse / procédures prévue",
+      description: "Planifier la prise en main des outils de vente et procédures magasin."
+    },
+    {
+      title: "Objectifs première semaine partagés",
+      description: "Présenter les priorités commerciales et rituels d'équipe."
+    }
+  ],
+  office: [
+    ...commonOnboardingSteps,
+    {
+      title: "Matériel et accès préparés",
+      description: "Préparer ordinateur, email, outils internes et accès nécessaires."
+    },
+    {
+      title: "Planning première semaine préparé",
+      description: "Planifier les points manager, rencontres équipe et premières priorités."
+    },
+    {
+      title: "Objectifs 30 jours définis",
+      description: "Clarifier les attentes et livrables du premier mois."
+    }
+  ]
+};
+
+const fallbackIndustry: WorkspaceIndustry = "services";
+
+function getOnboardingStepsForIndustry(industry: WorkspaceIndustry | null) {
+  return onboardingTemplates[industry ?? fallbackIndustry];
+}
 
 export async function createEmployee(formData: FormData) {
   const input = employeeInputSchema.parse({
@@ -80,6 +170,16 @@ export async function createEmployee(formData: FormData) {
     throw new Error("Votre rôle ne permet pas d'ajouter un collaborateur.");
   }
 
+  const { data: workspace, error: workspaceError } = await adminClient
+    .from("workspaces")
+    .select("industry")
+    .eq("id", typedProfile.workspace_id)
+    .single();
+  const typedWorkspace =
+    workspaceError && !isMissingWorkspaceProfileColumns(workspaceError)
+      ? { industry: fallbackIndustry }
+      : ((workspace ?? { industry: fallbackIndustry }) as WorkspaceRow);
+
   const { data: employee, error: insertError } = await adminClient
     .from("employees")
     .insert({
@@ -100,8 +200,10 @@ export async function createEmployee(formData: FormData) {
     throw new Error(`Impossible de créer le collaborateur: ${insertError.message}`);
   }
 
+  const onboardingSteps = getOnboardingStepsForIndustry(typedWorkspace.industry);
+
   const { error: stepsError } = await adminClient.from("employee_onboarding_steps").insert(
-    defaultOnboardingSteps.map((step, index) => ({
+    onboardingSteps.map((step, index) => ({
       employee_id: employee.id,
       workspace_id: typedProfile.workspace_id,
       title: step.title,
@@ -221,4 +323,11 @@ function isMissingOnboardingStepsTable(error: {
   message?: string | undefined;
 }) {
   return error.code === "42P01" || Boolean(error.message?.includes("employee_onboarding_steps"));
+}
+
+function isMissingWorkspaceProfileColumns(error: {
+  code?: string | undefined;
+  message?: string | undefined;
+}) {
+  return error.code === "42703" || Boolean(error.message?.includes("industry"));
 }
