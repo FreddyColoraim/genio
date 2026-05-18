@@ -2,6 +2,16 @@ import type { UserRole } from "@/types/roles";
 
 export type OnboardingStatus = "Not started" | "In progress" | "Waiting" | "Complete";
 
+export type OnboardingStepStatus = "todo" | "done";
+
+export type OnboardingStep = {
+  id: string;
+  title: string;
+  description: string;
+  status: OnboardingStepStatus;
+  position: number;
+};
+
 export type Employee = {
   id: string;
   name: string;
@@ -14,6 +24,7 @@ export type Employee = {
   progress: number;
   status: OnboardingStatus;
   pendingDocuments: number;
+  onboardingSteps: OnboardingStep[];
 };
 
 export const onboardingStatusLabels: Record<OnboardingStatus, string> = {

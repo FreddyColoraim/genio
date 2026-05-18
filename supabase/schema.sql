@@ -1,6 +1,7 @@
 create type public.app_role as enum ('admin', 'hr', 'manager', 'employee');
 create type public.onboarding_status as enum ('not_started', 'in_progress', 'waiting', 'complete');
 create type public.document_status as enum ('pending', 'review', 'signed');
+create type public.onboarding_step_status as enum ('todo', 'done');
 
 create table public.profiles (
   id uuid primary key references auth.users(id) on delete cascade,
@@ -46,6 +47,18 @@ create table public.employee_documents (
   created_at timestamptz not null default now()
 );
 
+create table public.employee_onboarding_steps (
+  id uuid primary key default gen_random_uuid(),
+  employee_id uuid not null references public.employees(id) on delete cascade,
+  workspace_id uuid not null references public.workspaces(id) on delete cascade,
+  title text not null,
+  description text not null,
+  position int not null,
+  status public.onboarding_step_status not null default 'todo',
+  completed_at timestamptz,
+  created_at timestamptz not null default now()
+);
+
 create table public.notifications (
   id uuid primary key default gen_random_uuid(),
   workspace_id uuid not null references public.workspaces(id) on delete cascade,
@@ -60,6 +73,7 @@ alter table public.profiles enable row level security;
 alter table public.workspaces enable row level security;
 alter table public.employees enable row level security;
 alter table public.employee_documents enable row level security;
+alter table public.employee_onboarding_steps enable row level security;
 alter table public.notifications enable row level security;
 
 create policy "profiles can read workspace members"
@@ -89,6 +103,19 @@ create policy "hr can manage documents"
     workspace_id in (
       select workspace_id from public.profiles
       where id = auth.uid() and role in ('admin', 'hr')
+    )
+  );
+
+create policy "members can read onboarding steps"
+  on public.employee_onboarding_steps for select
+  using (workspace_id in (select workspace_id from public.profiles where id = auth.uid()));
+
+create policy "hr can manage onboarding steps"
+  on public.employee_onboarding_steps for all
+  using (
+    workspace_id in (
+      select workspace_id from public.profiles
+      where id = auth.uid() and role in ('admin', 'hr', 'manager')
     )
   );
 

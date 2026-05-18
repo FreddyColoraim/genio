@@ -1,4 +1,4 @@
-import type { Employee, OnboardingStatus } from "@/types/employee";
+import type { Employee, OnboardingStatus, OnboardingStep } from "@/types/employee";
 import type { Metric } from "@/components/dashboard/metric-card";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
@@ -18,6 +18,15 @@ type EmployeeRow = {
 type EmployeeDocumentRow = {
   employee_id: string;
   status: "pending" | "review" | "signed";
+};
+
+type OnboardingStepRow = {
+  id: string;
+  employee_id: string;
+  title: string;
+  description: string;
+  position: number;
+  status: "todo" | "done";
 };
 
 type ProfileRow = {
@@ -47,7 +56,7 @@ export async function getDashboardData(): Promise<DashboardData> {
   const { data: userData } = await sessionClient.auth.getUser();
 
   if (!userData.user) {
-    return buildDashboardData([], []);
+    return buildDashboardData([], [], []);
   }
 
   const adminClient = createAdminClient();
@@ -64,7 +73,7 @@ export async function getDashboardData(): Promise<DashboardData> {
   const typedProfile = profile as ProfileRow;
 
   if (!typedProfile.workspace_id) {
-    return buildDashboardData([], []);
+    return buildDashboardData([], [], []);
   }
 
   const { data: employeeRows, error: employeesError } = await adminClient
@@ -83,7 +92,7 @@ export async function getDashboardData(): Promise<DashboardData> {
   const employeeIds = employees.map((employee) => employee.id);
 
   if (employeeIds.length === 0) {
-    return buildDashboardData([], []);
+    return buildDashboardData([], [], []);
   }
 
   const { data: documentRows, error: documentsError } = await adminClient
@@ -96,12 +105,39 @@ export async function getDashboardData(): Promise<DashboardData> {
     throw new Error(`Unable to load dashboard documents: ${documentsError.message}`);
   }
 
-  return buildDashboardData(employees, (documentRows ?? []) as EmployeeDocumentRow[]);
+  const { data: stepRows, error: stepsError } = await adminClient
+    .from("employee_onboarding_steps")
+    .select("id, employee_id, title, description, position, status")
+    .eq("workspace_id", typedProfile.workspace_id)
+    .in("employee_id", employeeIds)
+    .order("position", { ascending: true });
+
+  if (stepsError) {
+    if (isMissingOnboardingStepsTable(stepsError)) {
+      return buildDashboardData(employees, (documentRows ?? []) as EmployeeDocumentRow[], []);
+    }
+
+    throw new Error(`Unable to load onboarding steps: ${stepsError.message}`);
+  }
+
+  return buildDashboardData(
+    employees,
+    (documentRows ?? []) as EmployeeDocumentRow[],
+    (stepRows ?? []) as OnboardingStepRow[]
+  );
+}
+
+function isMissingOnboardingStepsTable(error: {
+  code?: string | undefined;
+  message?: string | undefined;
+}) {
+  return error.code === "42P01" || Boolean(error.message?.includes("employee_onboarding_steps"));
 }
 
 function buildDashboardData(
   employeeRows: EmployeeRow[],
-  documentRows: EmployeeDocumentRow[]
+  documentRows: EmployeeDocumentRow[],
+  stepRows: OnboardingStepRow[]
 ): DashboardData {
   const pendingDocumentsByEmployee = documentRows.reduce<Record<string, number>>(
     (counts, document) => {
@@ -113,6 +149,20 @@ function buildDashboardData(
     },
     {}
   );
+  const stepsByEmployee = stepRows.reduce<Record<string, OnboardingStep[]>>((steps, step) => {
+    steps[step.employee_id] = [
+      ...(steps[step.employee_id] ?? []),
+      {
+        id: step.id,
+        title: step.title,
+        description: step.description,
+        position: step.position,
+        status: step.status
+      }
+    ];
+
+    return steps;
+  }, {});
 
   const employees = employeeRows.map<Employee>((employee) => ({
     id: employee.id,
@@ -125,7 +175,8 @@ function buildDashboardData(
     startDate: frenchDateFormatter.format(new Date(`${employee.start_date}T00:00:00`)),
     progress: employee.progress,
     status: statusMap[employee.status],
-    pendingDocuments: pendingDocumentsByEmployee[employee.id] ?? 0
+    pendingDocuments: pendingDocumentsByEmployee[employee.id] ?? 0,
+    onboardingSteps: stepsByEmployee[employee.id] ?? []
   }));
 
   return {
