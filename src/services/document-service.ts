@@ -51,7 +51,7 @@ type DocumentRow = {
   status: DocumentStatus;
   storage_path: string;
   created_at: string;
-  employees: { full_name: string } | null;
+  employees: { full_name: string } | { full_name: string }[] | null;
 };
 
 export async function getDocumentsData(): Promise<DocumentsData> {
@@ -82,16 +82,24 @@ export async function getDocumentsData(): Promise<DocumentsData> {
         name: employee.full_name
       })
     ),
-    documents: ((documentRows ?? []) as DocumentRow[]).map((document) => ({
+    documents: ((documentRows ?? []) as unknown as DocumentRow[]).map((document) => ({
       id: document.id,
       employeeId: document.employee_id,
-      employeeName: document.employees?.full_name ?? "Collaborateur supprimé",
+      employeeName: getDocumentEmployeeName(document.employees),
       name: document.name,
       status: document.status,
       storagePath: document.storage_path,
       createdAt: document.created_at
     }))
   };
+}
+
+function getDocumentEmployeeName(employee: DocumentRow["employees"]) {
+  if (Array.isArray(employee)) {
+    return employee[0]?.full_name ?? "Collaborateur supprimé";
+  }
+
+  return employee?.full_name ?? "Collaborateur supprimé";
 }
 
 export async function createEmployeeDocument(formData: FormData) {
