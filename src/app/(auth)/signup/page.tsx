@@ -6,9 +6,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 const signupErrorMessages: Record<string, string> = {
+  auth_database_error: "Supabase Auth n'arrive pas à enregistrer l'utilisateur. Vérifiez les logs Supabase/Auth.",
   email_already_registered: "Cet email est déjà associé à un compte.",
   invalid_email: "L'adresse email n'est pas valide.",
   invalid_signup_fields: "Renseignez un workspace, un email valide et un mot de passe de 6 caractères minimum.",
+  rate_limit: "Trop de tentatives d'inscription. Réessayez dans quelques minutes.",
   signup_disabled: "Les inscriptions sont désactivées côté Supabase Auth.",
   signup_failed: "L'inscription a échoué. Vérifiez les paramètres Supabase Auth.",
   weak_password: "Le mot de passe doit contenir au moins 6 caractères.",

@@ -86,11 +86,23 @@ function getSignupErrorCode(error: AuthError) {
     return "email_already_registered";
   }
 
+  if (message.includes("rate limit")) {
+    return "rate_limit";
+  }
+
+  if (message.includes("database")) {
+    return "auth_database_error";
+  }
+
   if (message.includes("invalid") && message.includes("email")) {
     return "invalid_email";
   }
 
-  if (message.includes("signup") && message.includes("disabled")) {
+  if (
+    (message.includes("signup") && message.includes("disabled")) ||
+    (message.includes("email") && message.includes("disabled")) ||
+    message.includes("provider is not enabled")
+  ) {
     return "signup_disabled";
   }
 
