@@ -6,13 +6,22 @@ import { provisionSignupWorkspace } from "@/services/workspace-service";
 
 export async function signIn(formData: FormData) {
   const supabase = await createClient();
-  const email = String(formData.get("email") ?? "");
+  const email = String(formData.get("email") ?? "").trim();
   const password = String(formData.get("password") ?? "");
+
+  if (!email || !password) {
+    redirect("/login?error=missing_credentials");
+  }
 
   const { error } = await supabase.auth.signInWithPassword({ email, password });
 
   if (error) {
-    redirect("/login?error=invalid_credentials");
+    console.error("Supabase signin failed", {
+      code: error.code,
+      message: error.message,
+      status: error.status
+    });
+    redirect(`/login?error=${getSigninErrorCode(error)}`);
   }
 
   redirect("/dashboard");
@@ -85,4 +94,22 @@ function getSignupErrorCode(error: { code?: string; message?: string }) {
   }
 
   return "signup_failed";
+}
+
+function getSigninErrorCode(error: { code?: string; message?: string }) {
+  const message = error.message?.toLowerCase() ?? "";
+
+  if (message.includes("email not confirmed") || message.includes("not confirmed")) {
+    return "email_not_confirmed";
+  }
+
+  if (message.includes("invalid login") || message.includes("invalid credentials")) {
+    return "invalid_credentials";
+  }
+
+  if (message.includes("email")) {
+    return "invalid_email";
+  }
+
+  return "signin_failed";
 }
