@@ -173,9 +173,9 @@ export default function HomePage() {
               Le cockpit d'arrivee pour les PME
             </div>
             <h1 className="motion-rise max-w-3xl text-5xl font-black leading-[0.95] tracking-normal [animation-delay:120ms] sm:text-6xl lg:text-7xl">
-              Chaque salarie
-              <span className="block text-orange-500">onboarde</span>
-              <span className="block font-light text-white/65">sans friction.</span>
+              Integrez votre
+              <span className="block text-orange-500">candidat</span>
+              <span className="block font-light text-white/65">en toute serenite.</span>
             </h1>
             <p className="motion-rise mt-6 max-w-xl text-lg leading-8 text-white/60 [animation-delay:220ms]">
               Nexo centralise le profil candidat, l'arrivee collaborateur, les documents,
@@ -358,7 +358,7 @@ export default function HomePage() {
           Pret a simplifier vos arrivees ?
         </p>
         <h2 className="mx-auto mt-5 max-w-3xl text-5xl font-black tracking-normal text-indigo-950">
-          Plus jamais un salarie mal onboarde.
+          Transformez chaque recrutement en arrivee claire.
         </h2>
         <p className="mt-5 text-slate-500">Essai gratuit. Sans carte bancaire. Configuration en 10 minutes.</p>
         <div className="mt-8 flex justify-center">
