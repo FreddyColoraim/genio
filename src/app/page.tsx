@@ -31,6 +31,8 @@ const useCases = [
   {
     icon: CalendarCheck2,
     step: "01 · Candidature validee",
+    phase: "Profil",
+    progress: "25%",
     title: "Declencher le parcours d'arrivee",
     description:
       "Passez d'un profil candidat a une fiche collaborateur avec les premieres actions a suivre.",
@@ -39,6 +41,8 @@ const useCases = [
   {
     icon: FileCheck2,
     step: "02 · Documents",
+    phase: "Pieces",
+    progress: "50%",
     title: "Collecter les pieces utiles",
     description:
       "Associez chaque document au bon collaborateur, suivez son statut et gardez une lecture simple des manquants.",
@@ -47,6 +51,8 @@ const useCases = [
   {
     icon: UsersRound,
     step: "03 · Premier jour",
+    phase: "Arrivee",
+    progress: "75%",
     title: "Preparer l'arrivee terrain",
     description:
       "Planning, manager, materiel, consignes: chaque secteur garde ses etapes essentielles sans outil lourd.",
@@ -55,6 +61,8 @@ const useCases = [
   {
     icon: BarChart3,
     step: "04 · Pilotage",
+    phase: "Suivi",
+    progress: "100%",
     title: "Voir ce qui bloque",
     description:
       "Le dashboard remonte les onboardings actifs, la progression moyenne et les documents encore a traiter.",
@@ -65,41 +73,54 @@ const useCases = [
 const features = [
   {
     icon: ClipboardCheck,
+    tone: "orange",
     title: "Scenarios d'onboarding",
     description: "Des etapes simples, validables une par une, adaptees au secteur de l'entreprise."
   },
   {
     icon: FileCheck2,
+    tone: "emerald",
     title: "Documents d'arrivee",
     description: "Upload, association collaborateur et statuts en attente, recu ou valide."
   },
   {
     icon: UsersRound,
+    tone: "indigo",
     title: "Profil candidat",
     description: "Une fiche claire pour garder les infos utiles avant et pendant l'arrivee."
   },
   {
     icon: Building2,
+    tone: "sky",
     title: "Profil entreprise",
     description: "Secteur, taille et organisation pour mieux preparer les parcours d'arrivee."
   },
   {
     icon: BarChart3,
+    tone: "amber",
     title: "Dashboard clair",
     description: "Une vue courte des arrivees actives, documents et prochaines actions."
   }
 ];
 
 const sectors = [
-  { icon: HeartHandshake, name: "Services a la personne", detail: "Interventions, planning, suivi terrain" },
-  { icon: Wrench, name: "Industrie & BTP", detail: "Habilitations, materiel, securite" },
-  { icon: ShieldCheck, name: "Sante & medico-social", detail: "Dossiers, contraintes, roulements" },
-  { icon: Store, name: "Commerce & distribution", detail: "Turnover, magasins, equipes" },
-  { icon: BadgeCheck, name: "Associations", detail: "Salaries, benevoles, missions" },
-  { icon: Hotel, name: "Hotellerie & restauration", detail: "Saisonniers, shifts, tenues" },
-  { icon: Truck, name: "Transport & logistique", detail: "Permis, depot, tournees" },
-  { icon: Building2, name: "Tech & startup", detail: "Acces, outils, objectifs 30 jours" }
+  { icon: HeartHandshake, slug: "services-a-la-personne", name: "Services a la personne", detail: "Interventions, planning, suivi terrain" },
+  { icon: Wrench, slug: "industrie-btp", name: "Industrie & BTP", detail: "Habilitations, materiel, securite" },
+  { icon: ShieldCheck, slug: "sante-medico-social", name: "Sante & medico-social", detail: "Dossiers, contraintes, roulements" },
+  { icon: Store, slug: "commerce-distribution", name: "Commerce & distribution", detail: "Turnover, magasins, equipes" },
+  { icon: BadgeCheck, slug: "associations", name: "Associations", detail: "Salaries, benevoles, missions" },
+  { icon: Hotel, slug: "hotellerie-restauration", name: "Hotellerie & restauration", detail: "Saisonniers, shifts, tenues" },
+  { icon: Truck, slug: "transport-logistique", name: "Transport & logistique", detail: "Permis, depot, tournees" },
+  { icon: Building2, slug: "tech-startup", name: "Tech & startup", detail: "Acces, outils, objectifs 30 jours" }
 ];
+
+const featureToneClasses: Record<(typeof features)[number]["tone"], string> = {
+  amber: "border-amber-200 bg-amber-50 text-amber-700 group-hover:bg-amber-100",
+  emerald: "border-emerald-200 bg-emerald-50 text-emerald-700 group-hover:bg-emerald-100",
+  indigo: "border-indigo-200 bg-indigo-50 text-indigo-700 group-hover:bg-indigo-100",
+  orange: "border-orange-200 bg-orange-50 text-orange-700 group-hover:bg-orange-100",
+  sky: "border-sky-200 bg-sky-50 text-sky-700 group-hover:bg-sky-100"
+};
 
 const plans = [
   {
@@ -114,15 +135,15 @@ const plans = [
     price: "29€",
     period: "/ mois HT",
     description: "Pour les structures qui recrutent regulierement.",
-    features: ["Tout Starter", "Scenarios sectoriels", "Dashboard equipe", "Support email"]
+    features: ["Tout Starter", "Scenarios sectoriels", "Dashboard equipe", "Support email"],
+    featured: true
   },
   {
     name: "Croissance",
     price: "69€",
     period: "/ mois HT",
     description: "Pour les PME multi-equipes avec managers impliques.",
-    features: ["Tout PME", "Multi-sites", "Modeles avances", "Support prioritaire"],
-    featured: true
+    features: ["Tout PME", "Multi-sites", "Modeles avances", "Support prioritaire"]
   }
 ];
 
@@ -173,9 +194,9 @@ export default function HomePage() {
               Le cockpit d'arrivee pour les PME
             </div>
             <h1 className="motion-rise max-w-3xl text-5xl font-black leading-[0.95] tracking-normal [animation-delay:120ms] sm:text-6xl lg:text-7xl">
-              Integrez votre
-              <span className="block text-orange-500">candidat</span>
-              <span className="block font-light text-white/65">en toute serenite.</span>
+              Optimisez chaque
+              <span className="block text-orange-500">recrutement</span>
+              <span className="block font-light text-white/65">par une integration maitrisee.</span>
             </h1>
             <p className="motion-rise mt-6 max-w-xl text-lg leading-8 text-white/60 [animation-delay:220ms]">
               Nexo centralise le profil candidat, l'arrivee collaborateur, les documents,
@@ -237,24 +258,47 @@ export default function HomePage() {
             Nexo garde le parcours volontairement simple: une action, un responsable, un statut.
           </p>
         </div>
-        <div className="grid gap-5 md:grid-cols-2">
-          {useCases.map(({ icon: Icon, step, title, description, tags }) => (
-            <article className="group motion-rise rounded-lg border border-slate-200 bg-white p-7 transition duration-300 hover:-translate-y-1 hover:border-orange-300 hover:shadow-lg" key={title}>
-              <Icon className="size-7 text-orange-600 transition duration-300 group-hover:scale-110" />
-              <p className="mt-5 font-mono text-xs font-semibold uppercase tracking-wide text-orange-600">
-                {step}
-              </p>
-              <h3 className="mt-2 text-xl font-black text-slate-950">{title}</h3>
-              <p className="mt-3 leading-7 text-slate-500">{description}</p>
-              <div className="mt-5 flex flex-wrap gap-2">
-                {tags.map((tag) => (
-                  <span className="rounded-full border border-indigo-200 bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-950 transition group-hover:border-orange-200" key={tag}>
-                    {tag}
+        <div className="relative">
+          <div className="absolute left-6 right-6 top-8 hidden h-1 overflow-hidden rounded-full bg-slate-100 md:block">
+            <div className="motion-shine h-full w-4/5 rounded-full bg-orange-500" />
+          </div>
+          <div className="grid gap-5 md:grid-cols-4">
+            {useCases.map(({ icon: Icon, step, phase, progress, title, description, tags }, index) => (
+              <article
+                className="group motion-rise relative rounded-lg border border-slate-200 bg-white p-6 transition duration-300 hover:-translate-y-1 hover:border-orange-300 hover:shadow-lg"
+                key={title}
+                style={{ animationDelay: `${index * 110}ms` }}
+              >
+                <div className="mb-6 flex items-center justify-between">
+                  <div className="grid size-14 place-items-center rounded-full border-4 border-white bg-orange-600 text-lg font-black text-white shadow-lg transition duration-300 group-hover:scale-110">
+                    {index + 1}
+                  </div>
+                  <span className="rounded-full bg-slate-950 px-3 py-1 text-xs font-bold text-white">
+                    {progress}
                   </span>
-                ))}
-              </div>
-            </article>
-          ))}
+                </div>
+                <div className="mb-5 h-1.5 overflow-hidden rounded-full bg-slate-100">
+                  <div
+                    className="h-full rounded-full bg-orange-500 transition-all duration-700 group-hover:bg-indigo-700"
+                    style={{ width: progress }}
+                  />
+                </div>
+                <Icon className="size-7 text-orange-600 transition duration-300 group-hover:scale-110" />
+                <p className="mt-5 font-mono text-xs font-semibold uppercase tracking-wide text-orange-600">
+                  {step} · {phase}
+                </p>
+                <h3 className="mt-2 text-xl font-black text-slate-950">{title}</h3>
+                <p className="mt-3 leading-7 text-slate-500">{description}</p>
+                <div className="mt-5 flex flex-wrap gap-2">
+                  {tags.map((tag) => (
+                    <span className="rounded-full border border-indigo-200 bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-950 transition group-hover:border-orange-200" key={tag}>
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </article>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -267,12 +311,27 @@ export default function HomePage() {
             <h2 className="mt-5 text-4xl font-black tracking-normal text-slate-950">
               Tout ce qu'il faut pour accueillir quelqu'un, rien de superflu.
             </h2>
+            <div className="mt-8 flex flex-wrap justify-center gap-2">
+              {features.map(({ title, tone }) => (
+                <span
+                  className={`motion-rise rounded-full border px-3 py-1 text-xs font-bold ${featureToneClasses[tone]}`}
+                  key={title}
+                >
+                  {title}
+                </span>
+              ))}
+            </div>
           </div>
           <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-5">
-            {features.map(({ icon: Icon, title, description }) => (
-              <article className="group motion-rise rounded-lg border border-slate-200 bg-white p-6 transition duration-300 hover:-translate-y-1 hover:border-indigo-200 hover:shadow-md" key={title}>
-                <div className="grid size-12 place-items-center rounded-lg bg-indigo-50 text-indigo-950 transition duration-300 group-hover:bg-orange-50 group-hover:text-orange-600">
-                  <Icon className="size-6" />
+            {features.map(({ icon: Icon, tone, title, description }, index) => (
+              <article
+                className="group motion-rise overflow-hidden rounded-lg border border-slate-200 bg-white p-6 transition duration-300 hover:-translate-y-1 hover:shadow-md"
+                key={title}
+                style={{ animationDelay: `${index * 80}ms` }}
+              >
+                <div className={`mb-5 h-1.5 rounded-full ${featureToneClasses[tone]}`} />
+                <div className={`grid size-12 place-items-center rounded-lg border transition duration-300 ${featureToneClasses[tone]}`}>
+                  <Icon className="size-6 transition duration-300 group-hover:scale-110" />
                 </div>
                 <h3 className="mt-5 font-black text-slate-950">{title}</h3>
                 <p className="mt-3 text-sm leading-6 text-slate-500">{description}</p>
@@ -342,12 +401,20 @@ export default function HomePage() {
             </p>
           </div>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {sectors.map(({ icon: Icon, name, detail }) => (
-              <article className="group motion-rise rounded-lg border border-white/10 bg-white/5 p-6 text-center transition duration-300 hover:-translate-y-1 hover:border-orange-500/50 hover:bg-white/10" key={name}>
+            {sectors.map(({ icon: Icon, slug, name, detail }) => (
+              <Link
+                className="group motion-rise rounded-lg border border-white/10 bg-white/5 p-6 text-center transition duration-300 hover:-translate-y-1 hover:border-orange-500/50 hover:bg-white/10"
+                href={`/signup?profile=${slug}`}
+                key={name}
+              >
                 <Icon className="mx-auto size-8 text-orange-500 transition duration-300 group-hover:scale-110" />
                 <h3 className="mt-4 font-bold">{name}</h3>
                 <p className="mt-2 text-sm text-white/45">{detail}</p>
-              </article>
+                <span className="mt-5 inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-xs font-black text-indigo-950 transition group-hover:bg-orange-500 group-hover:text-white">
+                  Creer mon profil
+                  <ArrowRight className="size-3 transition group-hover:translate-x-0.5" />
+                </span>
+              </Link>
             ))}
           </div>
         </div>
