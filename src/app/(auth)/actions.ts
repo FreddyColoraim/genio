@@ -14,6 +14,17 @@ const allowedIndustries = new Set<WorkspaceIndustry>([
   "transport"
 ]);
 
+const signupProfileIndustries: Record<string, WorkspaceIndustry> = {
+  associations: "services",
+  "commerce-distribution": "retail",
+  "hotellerie-restauration": "restaurant",
+  "industrie-btp": "services",
+  "sante-medico-social": "services",
+  "services-a-la-personne": "services",
+  "tech-startup": "office",
+  "transport-logistique": "transport"
+};
+
 export async function signIn(formData: FormData) {
   const supabase = await createClient();
   const email = String(formData.get("email") ?? "").trim();
@@ -44,7 +55,8 @@ export async function signUp(formData: FormData) {
   const workspace = String(formData.get("workspace") ?? "").trim();
   const profile = String(formData.get("profile") ?? "").trim();
   const industryInput = String(formData.get("industry") ?? "").trim() as WorkspaceIndustry;
-  const industry = allowedIndustries.has(industryInput) ? industryInput : null;
+  const industry =
+    signupProfileIndustries[profile] ?? (allowedIndustries.has(industryInput) ? industryInput : null);
   const signupPath = getSignupRedirectPath(profile);
 
   if (!workspace || !email || password.length < 6) {

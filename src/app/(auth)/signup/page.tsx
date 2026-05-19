@@ -77,6 +77,11 @@ const signupProfiles: Record<
   }
 };
 
+const signupProfileOptions = Object.entries(signupProfiles).map(([value, profile]) => ({
+  label: profile.label,
+  value
+}));
+
 export default async function SignupPage({
   searchParams
 }: {
@@ -85,6 +90,7 @@ export default async function SignupPage({
   const { error, profile } = await searchParams;
   const errorMessage = error ? signupErrorMessages[error] : null;
   const selectedProfile = profile ? signupProfiles[profile] : null;
+  const defaultProfile = selectedProfile && profile ? profile : "services-a-la-personne";
 
   return (
     <AuthCard
@@ -117,8 +123,6 @@ export default async function SignupPage({
             </p>
           </div>
         ) : null}
-        <input name="profile" type="hidden" value={profile ?? ""} />
-        <input name="industry" type="hidden" value={selectedProfile?.industry ?? ""} />
         <div className="space-y-2">
           <Label htmlFor="workspace">Espace de travail</Label>
           <Input
@@ -127,6 +131,22 @@ export default async function SignupPage({
             placeholder={selectedProfile?.workspacePlaceholder ?? "Acme People"}
             required
           />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="profile">Secteur d'activité</Label>
+          <select
+            className="flex h-10 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground ring-offset-background transition file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            defaultValue={defaultProfile}
+            id="profile"
+            name="profile"
+          >
+            {signupProfileOptions.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+          <input name="industry" type="hidden" value={selectedProfile?.industry ?? "services"} />
         </div>
         <div className="space-y-2">
           <Label htmlFor="email">Email professionnel</Label>
