@@ -4,6 +4,15 @@ import type { AuthError } from "@supabase/supabase-js";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { provisionSignupWorkspace } from "@/services/workspace-service";
+import type { WorkspaceIndustry } from "@/types/workspace";
+
+const allowedIndustries = new Set<WorkspaceIndustry>([
+  "office",
+  "restaurant",
+  "retail",
+  "services",
+  "transport"
+]);
 
 export async function signIn(formData: FormData) {
   const supabase = await createClient();
@@ -33,9 +42,13 @@ export async function signUp(formData: FormData) {
   const email = String(formData.get("email") ?? "").trim();
   const password = String(formData.get("password") ?? "");
   const workspace = String(formData.get("workspace") ?? "").trim();
+  const profile = String(formData.get("profile") ?? "").trim();
+  const industryInput = String(formData.get("industry") ?? "").trim() as WorkspaceIndustry;
+  const industry = allowedIndustries.has(industryInput) ? industryInput : null;
+  const signupPath = getSignupRedirectPath(profile);
 
   if (!workspace || !email || password.length < 6) {
-    redirect("/signup?error=invalid_signup_fields");
+    redirect(`${signupPath}${signupPath.includes("?") ? "&" : "?"}error=invalid_signup_fields`);
   }
 
   const { data, error } = await supabase.auth.signUp({
@@ -54,25 +67,34 @@ export async function signUp(formData: FormData) {
       message: error.message,
       status: error.status
     });
-    redirect(`/signup?error=${getSignupErrorCode(error)}`);
+    redirect(`${signupPath}${signupPath.includes("?") ? "&" : "?"}error=${getSignupErrorCode(error)}`);
   }
 
   if (!data.user) {
-    redirect("/signup?error=signup_failed");
+    redirect(`${signupPath}${signupPath.includes("?") ? "&" : "?"}error=signup_failed`);
   }
 
   try {
     await provisionSignupWorkspace({
       email,
+      industry,
       userId: data.user.id,
       workspaceName: workspace
     });
   } catch (provisionError) {
     console.error(provisionError);
-    redirect("/signup?error=workspace_setup_failed");
+    redirect(`${signupPath}${signupPath.includes("?") ? "&" : "?"}error=workspace_setup_failed`);
   }
 
   redirect("/dashboard");
+}
+
+function getSignupRedirectPath(profile: string) {
+  if (!profile) {
+    return "/signup";
+  }
+
+  return `/signup?profile=${encodeURIComponent(profile)}`;
 }
 
 function getSignupErrorCode(error: AuthError) {

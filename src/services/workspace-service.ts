@@ -5,6 +5,7 @@ import type { WorkspaceIndustry, WorkspaceProfile } from "@/types/workspace";
 
 type ProvisionWorkspaceInput = {
   email: string;
+  industry?: WorkspaceIndustry | null;
   userId: string;
   workspaceName: string;
 };
@@ -24,6 +25,7 @@ type WorkspaceRow = {
 
 export async function provisionSignupWorkspace({
   email,
+  industry,
   userId,
   workspaceName
 }: ProvisionWorkspaceInput) {
@@ -67,10 +69,23 @@ export async function provisionSignupWorkspace({
 
   const { error: workspaceOwnerError } = await supabase
     .from("workspaces")
-    .update({ created_by: userId })
+    .update({ created_by: userId, industry: industry ?? null })
     .eq("id", workspace.id);
 
   if (workspaceOwnerError) {
+    if (isMissingWorkspaceProfileColumns(workspaceOwnerError)) {
+      const { error: fallbackWorkspaceOwnerError } = await supabase
+        .from("workspaces")
+        .update({ created_by: userId })
+        .eq("id", workspace.id);
+
+      if (fallbackWorkspaceOwnerError) {
+        throw new Error(`Unable to assign workspace owner: ${fallbackWorkspaceOwnerError.message}`);
+      }
+
+      return;
+    }
+
     throw new Error(`Unable to assign workspace owner: ${workspaceOwnerError.message}`);
   }
 }

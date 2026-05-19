@@ -4,6 +4,7 @@ import { AuthCard } from "@/components/auth/auth-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import type { WorkspaceIndustry } from "@/types/workspace";
 
 const signupErrorMessages: Record<string, string> = {
   auth_database_error: "Supabase Auth n'arrive pas à enregistrer l'utilisateur. Vérifiez les logs Supabase/Auth.",
@@ -17,18 +18,82 @@ const signupErrorMessages: Record<string, string> = {
   workspace_setup_failed: "Le compte a été créé, mais la création du workspace a échoué."
 };
 
+const signupProfiles: Record<
+  string,
+  {
+    description: string;
+    industry: WorkspaceIndustry;
+    label: string;
+    workspacePlaceholder: string;
+  }
+> = {
+  associations: {
+    description: "Un masque d'inscription pour suivre salaries, benevoles et missions.",
+    industry: "services",
+    label: "Associations",
+    workspacePlaceholder: "Association Horizon"
+  },
+  "commerce-distribution": {
+    description: "Un masque d'inscription adapte aux magasins, equipes et recrutements recurrents.",
+    industry: "retail",
+    label: "Commerce & distribution",
+    workspacePlaceholder: "Maison Retail"
+  },
+  "hotellerie-restauration": {
+    description: "Un masque d'inscription adapte aux saisonniers, shifts et arrivees terrain.",
+    industry: "restaurant",
+    label: "Hotellerie & restauration",
+    workspacePlaceholder: "Restaurant Le Central"
+  },
+  "industrie-btp": {
+    description: "Un masque d'inscription adapte aux habilitations, materiel et consignes terrain.",
+    industry: "services",
+    label: "Industrie & BTP",
+    workspacePlaceholder: "Atelier Martin"
+  },
+  "sante-medico-social": {
+    description: "Un masque d'inscription adapte aux dossiers, contraintes et roulements.",
+    industry: "services",
+    label: "Sante & medico-social",
+    workspacePlaceholder: "Centre Sainte Claire"
+  },
+  "services-a-la-personne": {
+    description: "Un masque d'inscription adapte aux interventions, plannings et suivis terrain.",
+    industry: "services",
+    label: "Services a la personne",
+    workspacePlaceholder: "Aide & Presence"
+  },
+  "tech-startup": {
+    description: "Un masque d'inscription adapte aux acces, outils et objectifs des 30 premiers jours.",
+    industry: "office",
+    label: "Tech & startup",
+    workspacePlaceholder: "Nexo Studio"
+  },
+  "transport-logistique": {
+    description: "Un masque d'inscription adapte aux permis, depots et tournees.",
+    industry: "transport",
+    label: "Transport & logistique",
+    workspacePlaceholder: "Logispeed"
+  }
+};
+
 export default async function SignupPage({
   searchParams
 }: {
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ error?: string; profile?: string }>;
 }) {
-  const { error } = await searchParams;
+  const { error, profile } = await searchParams;
   const errorMessage = error ? signupErrorMessages[error] : null;
+  const selectedProfile = profile ? signupProfiles[profile] : null;
 
   return (
     <AuthCard
-      title="Créer votre espace"
-      description="Configurez un hub d'onboarding moderne pour votre équipe."
+      title={selectedProfile ? `Créer un profil ${selectedProfile.label}` : "Créer votre espace"}
+      description={
+        selectedProfile
+          ? selectedProfile.description
+          : "Configurez un hub d'onboarding moderne pour votre équipe."
+      }
       footer={
         <p className="text-sm text-muted-foreground">
           Vous avez déjà un compte ?{" "}
@@ -44,9 +109,24 @@ export default async function SignupPage({
             {errorMessage}
           </div>
         ) : null}
+        {selectedProfile ? (
+          <div className="rounded-lg border border-orange-200 bg-orange-50 p-3 text-sm text-orange-800">
+            <p className="font-semibold">Profil sélectionné : {selectedProfile.label}</p>
+            <p className="mt-1 text-orange-700">
+              Le compte sera préparé avec ce secteur pour proposer les bons scénarios d'arrivée.
+            </p>
+          </div>
+        ) : null}
+        <input name="profile" type="hidden" value={profile ?? ""} />
+        <input name="industry" type="hidden" value={selectedProfile?.industry ?? ""} />
         <div className="space-y-2">
           <Label htmlFor="workspace">Espace de travail</Label>
-          <Input id="workspace" name="workspace" placeholder="Acme People" required />
+          <Input
+            id="workspace"
+            name="workspace"
+            placeholder={selectedProfile?.workspacePlaceholder ?? "Acme People"}
+            required
+          />
         </div>
         <div className="space-y-2">
           <Label htmlFor="email">Email professionnel</Label>
