@@ -1,75 +1,155 @@
 import Link from "next/link";
 import {
   ArrowRight,
+  BadgeCheck,
+  BarChart3,
+  Building2,
+  CalendarCheck2,
+  Check,
+  ClipboardCheck,
   FileCheck2,
-  Gauge,
-  MousePointerClick,
-  Route,
+  HeartHandshake,
+  Hotel,
   ShieldCheck,
-  Sparkles,
-  UsersRound
+  Store,
+  Truck,
+  UsersRound,
+  Wrench
 } from "lucide-react";
-import { BenefitsExplorer } from "@/components/landing/benefits-explorer";
 import { HeroDashboard } from "@/components/landing/hero-dashboard";
-import { PricingSection } from "@/components/landing/pricing-section";
 import { NexoLogo } from "@/components/nexo-logo";
 import { Button } from "@/components/ui/button";
 
-const pillars = [
+const metrics = [
+  ["10 min", "pour configurer un espace RH"],
+  ["1 lieu", "pour suivre onboarding et documents"],
+  ["8 secteurs", "avec scenarios adaptes"],
+  ["0 friction", "pour lancer une V1 RH claire"]
+];
+
+const useCases = [
   {
-    title: "Parcours guides",
-    description: "Centralisez les etapes d'arrivee, les responsables et les dates cles.",
-    icon: UsersRound
+    icon: CalendarCheck2,
+    step: "01 · Candidature validee",
+    title: "Declencher le parcours d'arrivee",
+    description:
+      "Passez d'un candidat retenu a un collaborateur suivi avec les premieres actions RH et manager.",
+    tags: ["Scenario type", "Manager implique", "Progression"]
   },
   {
-    title: "Documents sous controle",
-    description: "Suivez les pieces manquantes, les validations et les relances RH.",
-    icon: FileCheck2
+    icon: FileCheck2,
+    step: "02 · Documents",
+    title: "Collecter les pieces utiles",
+    description:
+      "Associez chaque document au bon collaborateur, suivez son statut et gardez une lecture simple des manquants.",
+    tags: ["Upload", "Recu", "Valide"]
   },
   {
-    title: "Pilotage clair",
-    description: "Visualisez l'avancement des equipes et les blocages a traiter en priorite.",
-    icon: Gauge
+    icon: UsersRound,
+    step: "03 · Premier jour",
+    title: "Preparer l'arrivee terrain",
+    description:
+      "Planning, manager, materiel, consignes: chaque secteur garde ses etapes essentielles sans outil lourd.",
+    tags: ["J-7", "Jour J", "J+7"]
   },
   {
-    title: "Sources candidats",
-    description: "Mesurez les arrivees issues de LinkedIn, du site carriere, des annonces et de la cooptation.",
-    icon: MousePointerClick
+    icon: BarChart3,
+    step: "04 · Pilotage RH",
+    title: "Voir ce qui bloque",
+    description:
+      "Le dashboard remonte les onboardings actifs, la progression moyenne et les documents encore a traiter.",
+    tags: ["Priorites", "Dashboard", "Suivi"]
+  }
+];
+
+const features = [
+  {
+    icon: ClipboardCheck,
+    title: "Scenarios d'onboarding",
+    description: "Des etapes simples, validables une par une, adaptees au secteur de l'entreprise."
   },
   {
-    title: "Reunion vers onboarding",
-    description: "Transformez un brief RH en offre, parcours candidat puis onboarding structure.",
-    icon: Route
+    icon: FileCheck2,
+    title: "Documents RH V1",
+    description: "Upload, association collaborateur et statuts en attente, recu ou valide."
+  },
+  {
+    icon: Building2,
+    title: "Profil entreprise",
+    description: "Secteur, taille et organisation pour mieux preparer les parcours d'arrivee."
+  },
+  {
+    icon: BarChart3,
+    title: "Dashboard clair",
+    description: "Une vue courte des onboardings actifs, documents et prochaines actions RH."
+  }
+];
+
+const sectors = [
+  { icon: HeartHandshake, name: "Services a la personne", detail: "Interventions, planning, suivi terrain" },
+  { icon: Wrench, name: "Industrie & BTP", detail: "Habilitations, materiel, securite" },
+  { icon: ShieldCheck, name: "Sante & medico-social", detail: "Dossiers, contraintes, roulements" },
+  { icon: Store, name: "Commerce & distribution", detail: "Turnover, magasins, equipes" },
+  { icon: BadgeCheck, name: "Associations", detail: "Salaries, benevoles, missions" },
+  { icon: Hotel, name: "Hotellerie & restauration", detail: "Saisonniers, shifts, tenues" },
+  { icon: Truck, name: "Transport & logistique", detail: "Permis, depot, tournees" },
+  { icon: Building2, name: "Tech & startup", detail: "Acces, outils, objectifs 30 jours" }
+];
+
+const plans = [
+  {
+    name: "Starter",
+    price: "0€",
+    period: "pour tester",
+    description: "Pour valider le besoin avec une petite equipe.",
+    features: ["1 workspace", "Collaborateurs", "Checklist onboarding", "Documents simples"]
+  },
+  {
+    name: "PME",
+    price: "29€",
+    period: "/ mois HT",
+    description: "Pour les structures qui recrutent regulierement.",
+    features: ["Tout Starter", "Scenarios sectoriels", "Dashboard RH", "Support email"]
+  },
+  {
+    name: "Croissance",
+    price: "69€",
+    period: "/ mois HT",
+    description: "Pour les PME multi-equipes avec managers impliques.",
+    features: ["Tout PME", "Multi-sites", "Modeles avances", "Support prioritaire"],
+    featured: true
   }
 ];
 
 export default function HomePage() {
   return (
-    <main className="min-h-screen bg-warm text-foreground">
-      <header className="border-b border-border/70 bg-white/80 backdrop-blur">
-        <div className="container flex h-20 items-center justify-between">
+    <main className="min-h-screen bg-white text-slate-950">
+      <header className="fixed inset-x-0 top-0 z-40 border-b border-slate-200 bg-white/90 backdrop-blur">
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 lg:px-8">
           <NexoLogo />
-          <nav className="hidden items-center gap-8 text-sm font-medium text-muted-foreground md:flex">
-            <a className="transition hover:text-foreground" href="#solution">
-              Solution
-            </a>
-            <a className="transition hover:text-foreground" href="#pilotage">
-              Pilotage
-            </a>
-            <a className="transition hover:text-foreground" href="#tarifs">
-              Tarifs
-            </a>
-            <a className="transition hover:text-foreground" href="#securite">
-              Securite
-            </a>
+          <nav className="hidden items-center gap-1 md:flex">
+            {[
+              ["Cas d'usage", "#cas-usage"],
+              ["Fonctionnalites", "#fonctionnalites"],
+              ["Tarifs", "#tarifs"],
+              ["Secteurs", "#secteurs"]
+            ].map(([label, href]) => (
+              <a
+                className="rounded-lg px-3 py-2 text-sm font-medium text-slate-500 transition hover:bg-slate-100 hover:text-slate-950"
+                href={href}
+                key={href}
+              >
+                {label}
+              </a>
+            ))}
           </nav>
-          <div className="flex items-center gap-3">
-            <Button asChild variant="ghost" className="hidden sm:inline-flex">
+          <div className="flex items-center gap-2">
+            <Button asChild className="hidden bg-white text-slate-700 hover:bg-slate-100 sm:inline-flex" variant="ghost">
               <Link href="/login">Connexion</Link>
             </Button>
-            <Button asChild>
+            <Button asChild className="bg-indigo-950 text-white hover:bg-indigo-900">
               <Link href="/signup">
-                Essai gratuit 14 jours
+                Demarrer
                 <ArrowRight className="size-4" />
               </Link>
             </Button>
@@ -77,30 +157,45 @@ export default function HomePage() {
         </div>
       </header>
 
-      <section className="surface-grid border-b border-border/70 bg-white">
-        <div className="container grid min-h-[calc(100vh-5rem)] items-center gap-12 py-16 lg:grid-cols-[1.02fr_0.98fr] lg:py-20">
-          <div className="max-w-3xl">
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-warm px-3 py-1 text-sm font-medium text-navy">
-              <Sparkles className="size-4 text-blue" />
-              Onboarding RH simple, clair, actionnable
+      <section className="relative overflow-hidden bg-indigo-950 pt-16 text-white">
+        <div className="pointer-events-none absolute inset-x-0 top-1/3 h-px -rotate-6 bg-white/5" />
+        <div className="pointer-events-none absolute inset-x-0 top-2/3 h-px -rotate-6 bg-white/5" />
+
+        <div className="relative mx-auto grid min-h-[calc(100vh-4rem)] max-w-7xl items-center gap-12 px-5 py-16 lg:grid-cols-[0.92fr_1.08fr] lg:px-8">
+          <div>
+            <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-orange-500/25 bg-orange-500/10 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.16em] text-orange-400">
+              <span className="size-1.5 rounded-full bg-orange-500" />
+              L'OS RH pour les PME
             </div>
-            <h1 className="text-4xl font-semibold leading-tight text-navy sm:text-5xl lg:text-6xl">
-              Nexo transforme une reunion RH en parcours candidat, puis en onboarding structure.
+            <h1 className="max-w-3xl text-5xl font-black leading-[0.95] tracking-normal sm:text-6xl lg:text-7xl">
+              Chaque salarie
+              <span className="block text-orange-500">onboarde</span>
+              <span className="block font-light text-white/65">sans friction.</span>
             </h1>
-            <p className="mt-6 max-w-2xl text-lg leading-8 text-muted-foreground">
-              De la prise de besoin a la publication de l'offre, du suivi des sources candidat a
-              l'arrivee du collaborateur : Nexo coordonne chaque etape dans un seul espace.
+            <p className="mt-6 max-w-xl text-lg leading-8 text-white/60">
+              Nexo centralise l'arrivee collaborateur: scenarios sectoriels, documents,
+              etapes manager et pilotage RH dans un espace simple.
             </p>
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <Button asChild size="default" className="h-12 px-6">
+            <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+              <Button asChild className="h-12 bg-orange-600 px-7 text-white shadow-[0_12px_30px_rgba(234,88,12,0.35)] hover:bg-orange-700">
                 <Link href="/signup">
-                  Demarrer l'essai gratuit
+                  Essai gratuit
                   <ArrowRight className="size-4" />
                 </Link>
               </Button>
-              <Button asChild size="default" variant="outline" className="h-12 px-6">
-                <Link href="/login">Voir le tableau de bord</Link>
+              <Button asChild className="h-12 border-white/15 bg-transparent px-7 text-white/75 hover:bg-white/10 hover:text-white" variant="outline">
+                <a href="#cas-usage">Voir une demo</a>
               </Button>
+            </div>
+            <div className="mt-10 flex flex-wrap gap-x-7 gap-y-3 text-sm text-white/50">
+              {["Sans carte bancaire", "Config en 10 min", "Support FR", "Hebergement Europe"].map(
+                (item) => (
+                  <span className="inline-flex items-center gap-2" key={item}>
+                    <Check className="size-4 text-orange-500" />
+                    {item}
+                  </span>
+                )
+              )}
             </div>
           </div>
 
@@ -108,98 +203,172 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section id="solution" className="border-b border-border/70 bg-warm py-20">
-        <div className="container">
-          <div className="max-w-2xl">
-            <p className="text-sm font-semibold uppercase tracking-wide text-blue">Solution</p>
-            <h2 className="mt-3 text-3xl font-semibold text-navy sm:text-4xl">
-              Tout ce qu'il faut pour lancer un collaborateur sans friction.
+      <section className="grid bg-slate-950 text-white md:grid-cols-4">
+        {metrics.map(([value, label]) => (
+          <div className="border-b border-white/10 px-6 py-8 text-center md:border-b-0 md:border-r" key={label}>
+            <p className="text-4xl font-black tracking-normal text-orange-500">{value}</p>
+            <p className="mt-2 text-sm font-medium text-white/45">{label}</p>
+          </div>
+        ))}
+      </section>
+
+      <section className="mx-auto max-w-7xl px-5 py-24 lg:px-8" id="cas-usage">
+        <div className="mx-auto mb-16 max-w-2xl text-center">
+          <p className="inline-flex rounded-full bg-orange-50 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.14em] text-orange-600">
+            Cas d'usage
+          </p>
+          <h2 className="mt-5 text-4xl font-black tracking-normal text-slate-950">
+            De la candidature validee au premier jour reussi.
+          </h2>
+          <p className="mt-4 leading-7 text-slate-500">
+            Nexo garde le parcours volontairement simple: une action, un responsable, un statut.
+          </p>
+        </div>
+        <div className="grid gap-5 md:grid-cols-2">
+          {useCases.map(({ icon: Icon, step, title, description, tags }) => (
+            <article className="rounded-lg border border-slate-200 bg-white p-7 transition hover:border-orange-300 hover:shadow-lg" key={title}>
+              <Icon className="size-7 text-orange-600" />
+              <p className="mt-5 font-mono text-xs font-semibold uppercase tracking-wide text-orange-600">
+                {step}
+              </p>
+              <h3 className="mt-2 text-xl font-black text-slate-950">{title}</h3>
+              <p className="mt-3 leading-7 text-slate-500">{description}</p>
+              <div className="mt-5 flex flex-wrap gap-2">
+                {tags.map((tag) => (
+                  <span className="rounded-full border border-indigo-200 bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-950" key={tag}>
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="border-y border-slate-200 bg-slate-50 px-5 py-24 lg:px-8" id="fonctionnalites">
+        <div className="mx-auto max-w-6xl">
+          <div className="mb-12 text-center">
+            <p className="inline-flex rounded-full bg-orange-50 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.14em] text-orange-600">
+              Fonctionnalites
+            </p>
+            <h2 className="mt-5 text-4xl font-black tracking-normal text-slate-950">
+              Tout ce dont une V1 RH a besoin, rien de superflu.
             </h2>
           </div>
-          <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-5">
-            {pillars.map(({ title, description, icon: Icon }) => (
-              <article key={title} className="rounded-lg border border-border bg-white p-6 shadow-sm">
-                <div className="grid size-11 place-items-center rounded-lg bg-lavender text-blue">
-                  <Icon className="size-5" />
+          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+            {features.map(({ icon: Icon, title, description }) => (
+              <article className="rounded-lg border border-slate-200 bg-white p-6" key={title}>
+                <div className="grid size-12 place-items-center rounded-lg bg-indigo-50 text-indigo-950">
+                  <Icon className="size-6" />
                 </div>
-                <h3 className="mt-5 text-lg font-semibold text-navy">{title}</h3>
-                <p className="mt-3 leading-7 text-muted-foreground">{description}</p>
+                <h3 className="mt-5 font-black text-slate-950">{title}</h3>
+                <p className="mt-3 text-sm leading-6 text-slate-500">{description}</p>
               </article>
             ))}
           </div>
         </div>
       </section>
 
-      <section id="pilotage" className="bg-white py-20">
-        <div className="container grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-wide text-blue">Pilotage</p>
-            <h2 className="mt-3 text-3xl font-semibold text-navy sm:text-4xl">
-              Priorisez les actions RH au lieu de courir apres l'information.
+      <section className="mx-auto max-w-6xl px-5 py-24 lg:px-8" id="tarifs">
+        <div className="mb-12 text-center">
+          <p className="inline-flex rounded-full bg-orange-50 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.14em] text-orange-600">
+            Tarifs
+          </p>
+          <h2 className="mt-5 text-4xl font-black tracking-normal text-slate-950">
+            Simple, transparent, sans mauvaise surprise.
+          </h2>
+        </div>
+        <div className="grid gap-5 lg:grid-cols-3">
+          {plans.map((plan) => (
+            <article
+              className={plan.featured ? "relative rounded-lg bg-indigo-950 p-7 text-white shadow-xl" : "rounded-lg border border-slate-200 bg-white p-7"}
+              key={plan.name}
+            >
+              {plan.featured ? (
+                <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-orange-600 px-4 py-1 text-xs font-black uppercase text-white">
+                  Le plus populaire
+                </span>
+              ) : null}
+              <p className={plan.featured ? "text-xs font-black uppercase tracking-wide text-white/45" : "text-xs font-black uppercase tracking-wide text-slate-400"}>
+                {plan.name}
+              </p>
+              <p className={plan.featured ? "mt-3 text-5xl font-black text-white" : "mt-3 text-5xl font-black text-slate-950"}>
+                {plan.price}
+              </p>
+              <p className={plan.featured ? "mt-1 text-sm text-white/45" : "mt-1 text-sm text-slate-400"}>
+                {plan.period}
+              </p>
+              <p className={plan.featured ? "mt-5 leading-7 text-white/55" : "mt-5 leading-7 text-slate-500"}>
+                {plan.description}
+              </p>
+              <div className={plan.featured ? "my-6 h-px bg-white/10" : "my-6 h-px bg-slate-200"} />
+              <ul className="space-y-3">
+                {plan.features.map((feature) => (
+                  <li className={plan.featured ? "flex gap-3 text-sm text-white/80" : "flex gap-3 text-sm text-slate-600"} key={feature}>
+                    <Check className="size-4 shrink-0 text-emerald-500" />
+                    {feature}
+                  </li>
+                ))}
+              </ul>
+              <Button asChild className={plan.featured ? "mt-8 w-full bg-orange-600 text-white hover:bg-orange-700" : "mt-8 w-full"} variant={plan.featured ? "default" : "outline"}>
+                <Link href="/signup">Commencer</Link>
+              </Button>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="bg-indigo-950 px-5 py-20 text-white lg:px-8" id="secteurs">
+        <div className="mx-auto max-w-6xl">
+          <div className="mb-12 text-center">
+            <h2 className="text-4xl font-black tracking-normal">
+              Nexo s'adapte a <span className="text-orange-500">votre secteur.</span>
             </h2>
-            <p className="mt-5 leading-8 text-muted-foreground">
-              Nexo RH donne une lecture immediate des dossiers sensibles, des documents en attente
-              et des prochaines actions a mener avec les managers.
+            <p className="mt-4 text-white/50">
+              Pour les entreprises qui recrutent, forment et doivent vite rendre les arrivees lisibles.
             </p>
           </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            {[
-              ["-42%", "relances manuelles"],
-              ["3 min", "pour lire les priorites"],
-              ["24/7", "visibilite equipe"],
-              ["1 lieu", "pour documents et suivi"]
-            ].map(([value, label]) => (
-              <div key={label} className="rounded-lg border border-border bg-warm p-6">
-                <p className="text-3xl font-semibold text-navy">{value}</p>
-                <p className="mt-2 text-sm font-medium text-muted-foreground">{label}</p>
-              </div>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {sectors.map(({ icon: Icon, name, detail }) => (
+              <article className="rounded-lg border border-white/10 bg-white/5 p-6 text-center transition hover:border-orange-500/50 hover:bg-white/10" key={name}>
+                <Icon className="mx-auto size-8 text-orange-500" />
+                <h3 className="mt-4 font-bold">{name}</h3>
+                <p className="mt-2 text-sm text-white/45">{detail}</p>
+              </article>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="border-t border-border/70 bg-warm py-20">
-        <div className="container">
-          <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:items-start">
-            <div>
-              <p className="text-sm font-semibold uppercase tracking-wide text-blue">
-                Benefices produit
-              </p>
-              <h2 className="mt-3 text-3xl font-semibold text-navy sm:text-4xl">
-                Une base operationnelle pour chaque arrivee.
-              </h2>
-              <p className="mt-5 leading-8 text-muted-foreground">
-                Nexo RH reduit les oublis, clarifie les responsabilites et donne aux equipes RH un
-                espace de travail concu pour suivre les parcours dans la duree.
-              </p>
-            </div>
-
-            <BenefitsExplorer />
-          </div>
-        </div>
-      </section>
-
-      <PricingSection />
-
-      <section id="securite" className="border-t border-border/70 bg-navy py-16 text-white">
-        <div className="container flex flex-col gap-8 md:flex-row md:items-center md:justify-between">
-          <div className="max-w-2xl">
-            <div className="flex items-center gap-3 text-white/75">
-              <ShieldCheck className="size-5" />
-              <p className="text-sm font-semibold uppercase tracking-wide">Espace RH securise</p>
-            </div>
-            <h2 className="mt-4 text-3xl font-semibold sm:text-4xl">
-              Pret a construire l'experience d'onboarding Nexo ?
-            </h2>
-          </div>
-          <Button asChild variant="secondary" className="h-12 px-6">
+      <section className="px-5 py-24 text-center lg:px-8">
+        <p className="text-xs font-black uppercase tracking-[0.14em] text-orange-600">
+          Pret a simplifier votre RH ?
+        </p>
+        <h2 className="mx-auto mt-5 max-w-3xl text-5xl font-black tracking-normal text-indigo-950">
+          Plus jamais un salarie mal onboarde.
+        </h2>
+        <p className="mt-5 text-slate-500">Essai gratuit. Sans carte bancaire. Configuration en 10 minutes.</p>
+        <div className="mt-8 flex justify-center">
+          <Button asChild className="h-12 bg-indigo-950 px-8 text-white hover:bg-indigo-900">
             <Link href="/signup">
-              Demarrer 14 jours gratuits
+              Demarrer gratuitement
               <ArrowRight className="size-4" />
             </Link>
           </Button>
         </div>
       </section>
+
+      <footer className="bg-slate-950 px-5 py-12 text-white lg:px-8">
+        <div className="mx-auto flex max-w-7xl flex-col gap-8 md:flex-row md:items-end md:justify-between">
+          <div>
+            <NexoLogo />
+            <p className="mt-4 max-w-sm text-sm leading-6 text-white/40">
+              L'OS RH simple pour les PME qui veulent structurer l'arrivee collaborateur.
+            </p>
+          </div>
+          <p className="text-sm text-white/30">© 2026 Nexo. Made in France.</p>
+        </div>
+      </footer>
     </main>
   );
 }
