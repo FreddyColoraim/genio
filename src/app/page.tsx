@@ -147,10 +147,10 @@ export default function HomePage() {
             <Button asChild className="hidden bg-white text-slate-700 hover:bg-slate-100 sm:inline-flex" variant="ghost">
               <Link href="/login">Connexion</Link>
             </Button>
-            <Button asChild className="bg-indigo-950 text-white hover:bg-indigo-900">
+            <Button asChild className="group bg-indigo-950 text-white transition hover:-translate-y-0.5 hover:bg-indigo-900">
               <Link href="/signup">
                 Demarrer
-                <ArrowRight className="size-4" />
+                <ArrowRight className="size-4 transition group-hover:translate-x-1" />
               </Link>
             </Button>
           </div>
@@ -158,39 +158,39 @@ export default function HomePage() {
       </header>
 
       <section className="relative overflow-hidden bg-indigo-950 pt-16 text-white">
-        <div className="pointer-events-none absolute inset-x-0 top-1/3 h-px -rotate-6 bg-white/5" />
-        <div className="pointer-events-none absolute inset-x-0 top-2/3 h-px -rotate-6 bg-white/5" />
+        <div className="motion-line pointer-events-none absolute inset-x-0 top-1/3 h-px bg-white/5" />
+        <div className="motion-line pointer-events-none absolute inset-x-0 top-2/3 h-px bg-white/5 [animation-delay:1.8s]" />
 
         <div className="relative mx-auto grid min-h-[calc(100vh-4rem)] max-w-7xl items-center gap-12 px-5 py-16 lg:grid-cols-[0.92fr_1.08fr] lg:px-8">
           <div>
-            <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-orange-500/25 bg-orange-500/10 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.16em] text-orange-400">
-              <span className="size-1.5 rounded-full bg-orange-500" />
+            <div className="motion-rise mb-7 inline-flex items-center gap-2 rounded-full border border-orange-500/25 bg-orange-500/10 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.16em] text-orange-400">
+              <span className="motion-pulse-soft size-1.5 rounded-full bg-orange-500" />
               L'OS RH pour les PME
             </div>
-            <h1 className="max-w-3xl text-5xl font-black leading-[0.95] tracking-normal sm:text-6xl lg:text-7xl">
+            <h1 className="motion-rise max-w-3xl text-5xl font-black leading-[0.95] tracking-normal [animation-delay:120ms] sm:text-6xl lg:text-7xl">
               Chaque salarie
               <span className="block text-orange-500">onboarde</span>
               <span className="block font-light text-white/65">sans friction.</span>
             </h1>
-            <p className="mt-6 max-w-xl text-lg leading-8 text-white/60">
+            <p className="motion-rise mt-6 max-w-xl text-lg leading-8 text-white/60 [animation-delay:220ms]">
               Nexo centralise l'arrivee collaborateur: scenarios sectoriels, documents,
               etapes manager et pilotage RH dans un espace simple.
             </p>
-            <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-              <Button asChild className="h-12 bg-orange-600 px-7 text-white shadow-[0_12px_30px_rgba(234,88,12,0.35)] hover:bg-orange-700">
+            <div className="motion-rise mt-9 flex flex-col gap-3 [animation-delay:320ms] sm:flex-row">
+              <Button asChild className="group h-12 bg-orange-600 px-7 text-white shadow-[0_12px_30px_rgba(234,88,12,0.35)] transition hover:-translate-y-0.5 hover:bg-orange-700">
                 <Link href="/signup">
                   Essai gratuit
-                  <ArrowRight className="size-4" />
+                  <ArrowRight className="size-4 transition group-hover:translate-x-1" />
                 </Link>
               </Button>
-              <Button asChild className="h-12 border-white/15 bg-transparent px-7 text-white/75 hover:bg-white/10 hover:text-white" variant="outline">
+              <Button asChild className="h-12 border-white/15 bg-transparent px-7 text-white/75 transition hover:-translate-y-0.5 hover:bg-white/10 hover:text-white" variant="outline">
                 <a href="#cas-usage">Voir une demo</a>
               </Button>
             </div>
-            <div className="mt-10 flex flex-wrap gap-x-7 gap-y-3 text-sm text-white/50">
+            <div className="motion-rise mt-10 flex flex-wrap gap-x-7 gap-y-3 text-sm text-white/50 [animation-delay:430ms]">
               {["Sans carte bancaire", "Config en 10 min", "Support FR", "Hebergement Europe"].map(
                 (item) => (
-                  <span className="inline-flex items-center gap-2" key={item}>
+                  <span className="inline-flex items-center gap-2 transition hover:text-white/80" key={item}>
                     <Check className="size-4 text-orange-500" />
                     {item}
                   </span>
@@ -199,13 +199,21 @@ export default function HomePage() {
             </div>
           </div>
 
-          <HeroDashboard />
+          <div className="motion-slide-left [animation-delay:180ms]">
+            <div className="motion-float">
+              <HeroDashboard />
+            </div>
+          </div>
         </div>
       </section>
 
       <section className="grid bg-slate-950 text-white md:grid-cols-4">
-        {metrics.map(([value, label]) => (
-          <div className="border-b border-white/10 px-6 py-8 text-center md:border-b-0 md:border-r" key={label}>
+        {metrics.map(([value, label], index) => (
+          <div
+            className="motion-rise border-b border-white/10 px-6 py-8 text-center md:border-b-0 md:border-r"
+            key={label}
+            style={{ animationDelay: `${index * 90}ms` }}
+          >
             <p className="text-4xl font-black tracking-normal text-orange-500">{value}</p>
             <p className="mt-2 text-sm font-medium text-white/45">{label}</p>
           </div>
@@ -226,8 +234,8 @@ export default function HomePage() {
         </div>
         <div className="grid gap-5 md:grid-cols-2">
           {useCases.map(({ icon: Icon, step, title, description, tags }) => (
-            <article className="rounded-lg border border-slate-200 bg-white p-7 transition hover:border-orange-300 hover:shadow-lg" key={title}>
-              <Icon className="size-7 text-orange-600" />
+            <article className="group motion-rise rounded-lg border border-slate-200 bg-white p-7 transition duration-300 hover:-translate-y-1 hover:border-orange-300 hover:shadow-lg" key={title}>
+              <Icon className="size-7 text-orange-600 transition duration-300 group-hover:scale-110" />
               <p className="mt-5 font-mono text-xs font-semibold uppercase tracking-wide text-orange-600">
                 {step}
               </p>
@@ -235,7 +243,7 @@ export default function HomePage() {
               <p className="mt-3 leading-7 text-slate-500">{description}</p>
               <div className="mt-5 flex flex-wrap gap-2">
                 {tags.map((tag) => (
-                  <span className="rounded-full border border-indigo-200 bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-950" key={tag}>
+                  <span className="rounded-full border border-indigo-200 bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-950 transition group-hover:border-orange-200" key={tag}>
                     {tag}
                   </span>
                 ))}
@@ -257,8 +265,8 @@ export default function HomePage() {
           </div>
           <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
             {features.map(({ icon: Icon, title, description }) => (
-              <article className="rounded-lg border border-slate-200 bg-white p-6" key={title}>
-                <div className="grid size-12 place-items-center rounded-lg bg-indigo-50 text-indigo-950">
+              <article className="group motion-rise rounded-lg border border-slate-200 bg-white p-6 transition duration-300 hover:-translate-y-1 hover:border-indigo-200 hover:shadow-md" key={title}>
+                <div className="grid size-12 place-items-center rounded-lg bg-indigo-50 text-indigo-950 transition duration-300 group-hover:bg-orange-50 group-hover:text-orange-600">
                   <Icon className="size-6" />
                 </div>
                 <h3 className="mt-5 font-black text-slate-950">{title}</h3>
@@ -281,11 +289,11 @@ export default function HomePage() {
         <div className="grid gap-5 lg:grid-cols-3">
           {plans.map((plan) => (
             <article
-              className={plan.featured ? "relative rounded-lg bg-indigo-950 p-7 text-white shadow-xl" : "rounded-lg border border-slate-200 bg-white p-7"}
+              className={plan.featured ? "motion-rise relative rounded-lg bg-indigo-950 p-7 text-white shadow-xl transition duration-300 hover:-translate-y-1" : "motion-rise rounded-lg border border-slate-200 bg-white p-7 transition duration-300 hover:-translate-y-1 hover:shadow-md"}
               key={plan.name}
             >
               {plan.featured ? (
-                <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-orange-600 px-4 py-1 text-xs font-black uppercase text-white">
+                <span className="motion-shine absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-orange-600 px-4 py-1 text-xs font-black uppercase text-white">
                   Le plus populaire
                 </span>
               ) : null}
@@ -310,7 +318,7 @@ export default function HomePage() {
                   </li>
                 ))}
               </ul>
-              <Button asChild className={plan.featured ? "mt-8 w-full bg-orange-600 text-white hover:bg-orange-700" : "mt-8 w-full"} variant={plan.featured ? "default" : "outline"}>
+              <Button asChild className={plan.featured ? "mt-8 w-full bg-orange-600 text-white transition hover:-translate-y-0.5 hover:bg-orange-700" : "mt-8 w-full transition hover:-translate-y-0.5"} variant={plan.featured ? "default" : "outline"}>
                 <Link href="/signup">Commencer</Link>
               </Button>
             </article>
@@ -330,8 +338,8 @@ export default function HomePage() {
           </div>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {sectors.map(({ icon: Icon, name, detail }) => (
-              <article className="rounded-lg border border-white/10 bg-white/5 p-6 text-center transition hover:border-orange-500/50 hover:bg-white/10" key={name}>
-                <Icon className="mx-auto size-8 text-orange-500" />
+              <article className="group motion-rise rounded-lg border border-white/10 bg-white/5 p-6 text-center transition duration-300 hover:-translate-y-1 hover:border-orange-500/50 hover:bg-white/10" key={name}>
+                <Icon className="mx-auto size-8 text-orange-500 transition duration-300 group-hover:scale-110" />
                 <h3 className="mt-4 font-bold">{name}</h3>
                 <p className="mt-2 text-sm text-white/45">{detail}</p>
               </article>
@@ -349,10 +357,10 @@ export default function HomePage() {
         </h2>
         <p className="mt-5 text-slate-500">Essai gratuit. Sans carte bancaire. Configuration en 10 minutes.</p>
         <div className="mt-8 flex justify-center">
-          <Button asChild className="h-12 bg-indigo-950 px-8 text-white hover:bg-indigo-900">
+          <Button asChild className="group h-12 bg-indigo-950 px-8 text-white transition hover:-translate-y-0.5 hover:bg-indigo-900">
             <Link href="/signup">
               Demarrer gratuitement
-              <ArrowRight className="size-4" />
+              <ArrowRight className="size-4 transition group-hover:translate-x-1" />
             </Link>
           </Button>
         </div>

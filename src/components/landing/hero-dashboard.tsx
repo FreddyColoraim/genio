@@ -65,13 +65,22 @@ const toneClasses: Record<(typeof alerts)[number]["tone"], string> = {
 
 export function HeroDashboard() {
   const [activeProgress, setActiveProgress] = useState(employees.map(() => 0));
+  const [activeEmployeeIndex, setActiveEmployeeIndex] = useState(0);
+  const [activeAlertIndex, setActiveAlertIndex] = useState(0);
 
   useEffect(() => {
     const timeout = window.setTimeout(() => {
       setActiveProgress(employees.map((employee) => employee.progress));
     }, 350);
+    const interval = window.setInterval(() => {
+      setActiveEmployeeIndex((current) => (current + 1) % employees.length);
+      setActiveAlertIndex((current) => (current + 1) % alerts.length);
+    }, 2200);
 
-    return () => window.clearTimeout(timeout);
+    return () => {
+      window.clearTimeout(timeout);
+      window.clearInterval(interval);
+    };
   }, []);
 
   return (
@@ -95,7 +104,7 @@ export function HeroDashboard() {
             <p className="text-sm font-bold text-slate-900">Onboarding en cours</p>
             <p className="mt-1 text-xs text-slate-400">4 nouveaux arrivants · Mai 2026</p>
           </div>
-          <span className="rounded-full border border-orange-200 bg-orange-50 px-3 py-1 text-xs font-bold text-orange-700">
+          <span className="motion-shine rounded-full border border-orange-200 bg-orange-50 px-3 py-1 text-xs font-bold text-orange-700">
             + Nouveau salarie
           </span>
         </div>
@@ -106,7 +115,12 @@ export function HeroDashboard() {
 
             return (
               <div
-                className="grid items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 p-3 sm:grid-cols-[auto_1fr_150px_auto]"
+                className={cn(
+                  "grid items-center gap-3 rounded-lg border p-3 transition duration-500 sm:grid-cols-[auto_1fr_150px_auto]",
+                  activeEmployeeIndex === index
+                    ? "translate-x-1 border-orange-200 bg-orange-50/70 shadow-sm"
+                    : "border-slate-200 bg-slate-50"
+                )}
                 key={employee.name}
               >
                 <div
@@ -114,7 +128,8 @@ export function HeroDashboard() {
                     "grid size-9 place-items-center rounded-full text-xs font-bold text-white",
                     employee.tone === "orange" && "bg-orange-600",
                     employee.tone === "green" && "bg-emerald-600",
-                    employee.tone === "indigo" && "bg-indigo-700"
+                    employee.tone === "indigo" && "bg-indigo-700",
+                    activeEmployeeIndex === index && "motion-pulse-soft"
                   )}
                 >
                   {employee.initials}
@@ -161,8 +176,14 @@ export function HeroDashboard() {
             Checklist · Marie Renault
           </p>
           <div className="divide-y divide-slate-100 rounded-lg border border-slate-200 bg-white px-4">
-            {checklist.map((item) => (
-              <div className="flex items-center gap-3 py-2.5 text-sm" key={item.label}>
+            {checklist.map((item, index) => (
+              <div
+                className={cn(
+                  "flex items-center gap-3 py-2.5 text-sm transition duration-500",
+                  activeEmployeeIndex === index % employees.length && "translate-x-1"
+                )}
+                key={item.label}
+              >
                 <span
                   className={cn(
                     "grid size-5 place-items-center rounded text-[11px] font-bold",
@@ -188,12 +209,16 @@ export function HeroDashboard() {
         </div>
 
         <div className="space-y-2">
-          {alerts.map(({ icon: Icon, label, tone }) => (
+          {alerts.map(({ icon: Icon, label, tone }, index) => (
             <div
-              className={cn("flex items-center gap-3 rounded-lg border px-3 py-2 text-xs", toneClasses[tone])}
+              className={cn(
+                "flex items-center gap-3 rounded-lg border px-3 py-2 text-xs transition duration-500",
+                toneClasses[tone],
+                activeAlertIndex === index && "translate-x-1 shadow-sm"
+              )}
               key={label}
             >
-              <Icon className="size-4" />
+              <Icon className={cn("size-4", activeAlertIndex === index && "motion-pulse-soft")} />
               <span className="flex-1 font-medium">{label}</span>
               <span className="font-bold underline">Voir</span>
             </div>
