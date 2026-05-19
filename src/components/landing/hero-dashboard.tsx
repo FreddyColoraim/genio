@@ -33,7 +33,7 @@ const employees = [
 
 const checklist = [
   { label: "Candidature validee", date: "02/05", status: "done" },
-  { label: "Mail candidat envoye", date: "02/05", status: "done" },
+  { label: "Profil candidat complete", date: "02/05", status: "done" },
   { label: "RDV manager planifie", date: "03/05", status: "done" },
   { label: "Documents d'arrivee demandes", date: "15/05", status: "warning" },
   { label: "Jour d'arrivee prepare", date: "--", status: "todo" }

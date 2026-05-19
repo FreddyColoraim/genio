@@ -21,10 +21,10 @@ import { NexoLogo } from "@/components/nexo-logo";
 import { Button } from "@/components/ui/button";
 
 const metrics = [
-  ["10 min", "pour configurer un espace RH"],
+  ["10 min", "pour configurer votre espace"],
   ["1 lieu", "pour suivre onboarding et documents"],
   ["8 secteurs", "avec scenarios adaptes"],
-  ["0 friction", "pour lancer une V1 RH claire"]
+  ["0 friction", "pour lancer une V1 simple"]
 ];
 
 const useCases = [
@@ -33,8 +33,8 @@ const useCases = [
     step: "01 · Candidature validee",
     title: "Declencher le parcours d'arrivee",
     description:
-      "Passez d'un candidat retenu a un collaborateur suivi avec les premieres actions RH et manager.",
-    tags: ["Scenario type", "Manager implique", "Progression"]
+      "Passez d'un profil candidat a une fiche collaborateur avec les premieres actions a suivre.",
+    tags: ["Profil candidat", "Manager implique", "Progression"]
   },
   {
     icon: FileCheck2,
@@ -54,7 +54,7 @@ const useCases = [
   },
   {
     icon: BarChart3,
-    step: "04 · Pilotage RH",
+    step: "04 · Pilotage",
     title: "Voir ce qui bloque",
     description:
       "Le dashboard remonte les onboardings actifs, la progression moyenne et les documents encore a traiter.",
@@ -70,8 +70,13 @@ const features = [
   },
   {
     icon: FileCheck2,
-    title: "Documents RH V1",
+    title: "Documents d'arrivee",
     description: "Upload, association collaborateur et statuts en attente, recu ou valide."
+  },
+  {
+    icon: UsersRound,
+    title: "Profil candidat",
+    description: "Une fiche claire pour garder les infos utiles avant et pendant l'arrivee."
   },
   {
     icon: Building2,
@@ -81,7 +86,7 @@ const features = [
   {
     icon: BarChart3,
     title: "Dashboard clair",
-    description: "Une vue courte des onboardings actifs, documents et prochaines actions RH."
+    description: "Une vue courte des arrivees actives, documents et prochaines actions."
   }
 ];
 
@@ -109,7 +114,7 @@ const plans = [
     price: "29€",
     period: "/ mois HT",
     description: "Pour les structures qui recrutent regulierement.",
-    features: ["Tout Starter", "Scenarios sectoriels", "Dashboard RH", "Support email"]
+    features: ["Tout Starter", "Scenarios sectoriels", "Dashboard equipe", "Support email"]
   },
   {
     name: "Croissance",
@@ -165,7 +170,7 @@ export default function HomePage() {
           <div>
             <div className="motion-rise mb-7 inline-flex items-center gap-2 rounded-full border border-orange-500/25 bg-orange-500/10 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.16em] text-orange-400">
               <span className="motion-pulse-soft size-1.5 rounded-full bg-orange-500" />
-              L'OS RH pour les PME
+              Le cockpit d'arrivee pour les PME
             </div>
             <h1 className="motion-rise max-w-3xl text-5xl font-black leading-[0.95] tracking-normal [animation-delay:120ms] sm:text-6xl lg:text-7xl">
               Chaque salarie
@@ -173,8 +178,8 @@ export default function HomePage() {
               <span className="block font-light text-white/65">sans friction.</span>
             </h1>
             <p className="motion-rise mt-6 max-w-xl text-lg leading-8 text-white/60 [animation-delay:220ms]">
-              Nexo centralise l'arrivee collaborateur: scenarios sectoriels, documents,
-              etapes manager et pilotage RH dans un espace simple.
+              Nexo centralise le profil candidat, l'arrivee collaborateur, les documents,
+              les etapes manager et le suivi dans un espace simple.
             </p>
             <div className="motion-rise mt-9 flex flex-col gap-3 [animation-delay:320ms] sm:flex-row">
               <Button asChild className="group h-12 bg-orange-600 px-7 text-white shadow-[0_12px_30px_rgba(234,88,12,0.35)] transition hover:-translate-y-0.5 hover:bg-orange-700">
@@ -260,10 +265,10 @@ export default function HomePage() {
               Fonctionnalites
             </p>
             <h2 className="mt-5 text-4xl font-black tracking-normal text-slate-950">
-              Tout ce dont une V1 RH a besoin, rien de superflu.
+              Tout ce qu'il faut pour accueillir quelqu'un, rien de superflu.
             </h2>
           </div>
-          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-5">
             {features.map(({ icon: Icon, title, description }) => (
               <article className="group motion-rise rounded-lg border border-slate-200 bg-white p-6 transition duration-300 hover:-translate-y-1 hover:border-indigo-200 hover:shadow-md" key={title}>
                 <div className="grid size-12 place-items-center rounded-lg bg-indigo-50 text-indigo-950 transition duration-300 group-hover:bg-orange-50 group-hover:text-orange-600">
@@ -350,7 +355,7 @@ export default function HomePage() {
 
       <section className="px-5 py-24 text-center lg:px-8">
         <p className="text-xs font-black uppercase tracking-[0.14em] text-orange-600">
-          Pret a simplifier votre RH ?
+          Pret a simplifier vos arrivees ?
         </p>
         <h2 className="mx-auto mt-5 max-w-3xl text-5xl font-black tracking-normal text-indigo-950">
           Plus jamais un salarie mal onboarde.
@@ -371,7 +376,7 @@ export default function HomePage() {
           <div>
             <NexoLogo />
             <p className="mt-4 max-w-sm text-sm leading-6 text-white/40">
-              L'OS RH simple pour les PME qui veulent structurer l'arrivee collaborateur.
+              Le cockpit simple pour les PME qui veulent structurer l'arrivee collaborateur.
             </p>
           </div>
           <p className="text-sm text-white/30">© 2026 Nexo. Made in France.</p>
