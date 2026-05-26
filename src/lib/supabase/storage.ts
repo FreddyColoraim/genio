@@ -1,1 +1,1 @@
-export { createEmployeeDocument } from "@/services/document-service";
+// Storage helpers — uploads handled directly in document-service

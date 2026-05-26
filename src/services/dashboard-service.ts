@@ -1,36 +1,34 @@
-import type { Employee, OnboardingStatus, OnboardingStep } from "@/types/employee";
 import type { Metric } from "@/components/dashboard/metric-card";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
-type EmployeeRow = {
-  id: string;
-  full_name: string;
-  email: string;
-  title: string;
-  department: string;
-  manager_name: string | null;
-  start_date: string;
-  status: "not_started" | "in_progress" | "waiting" | "complete";
-  progress: number;
-};
+// ---------------------------------------------------------------------------
+// Types UI (compatibles avec les composants existants)
+// ---------------------------------------------------------------------------
 
-type EmployeeDocumentRow = {
-  employee_id: string;
-  status: "pending" | "review" | "signed";
-};
+export type OnboardingStatus = "Not started" | "In progress" | "Waiting" | "Complete";
 
-type OnboardingStepRow = {
+export type OnboardingStep = {
   id: string;
-  employee_id: string;
   title: string;
   description: string;
   position: number;
   status: "todo" | "done";
 };
 
-type ProfileRow = {
-  workspace_id: string | null;
+export type Employee = {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  accessRole: "employee";
+  department: string;
+  manager: string;
+  startDate: string;
+  progress: number;
+  status: OnboardingStatus;
+  pendingDocuments: number;
+  onboardingSteps: OnboardingStep[];
 };
 
 export type DashboardData = {
@@ -38,199 +36,165 @@ export type DashboardData = {
   metrics: Metric[];
 };
 
-const statusMap: Record<EmployeeRow["status"], OnboardingStatus> = {
-  not_started: "Not started",
-  in_progress: "In progress",
-  waiting: "Waiting",
-  complete: "Complete"
-};
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
 
-const frenchDateFormatter = new Intl.DateTimeFormat("fr-FR", {
-  day: "numeric",
-  month: "long",
-  year: "numeric"
-});
+const frenchDate = new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "long", year: "numeric" });
+
+function formatDate(d: string) {
+  return frenchDate.format(new Date(`${d}T00:00:00`));
+}
+
+function isCurrentMonth(d: string) {
+  const now  = new Date();
+  const date = new Date(`${d}T00:00:00`);
+  return date.getFullYear() === now.getFullYear() && date.getMonth() === now.getMonth();
+}
+
+function pctToStatus(pct: number): OnboardingStatus {
+  if (pct === 100) return "Complete";
+  if (pct > 0)    return "In progress";
+  return "Not started";
+}
+
+// ---------------------------------------------------------------------------
+// getDashboardData
+// ---------------------------------------------------------------------------
 
 export async function getDashboardData(): Promise<DashboardData> {
   const sessionClient = await createClient();
   const { data: userData } = await sessionClient.auth.getUser();
+  if (!userData.user) return { employees: [], metrics: buildMetrics([], []) };
 
-  if (!userData.user) {
-    return buildDashboardData([], [], []);
-  }
+  const admin = createAdminClient();
 
-  const adminClient = createAdminClient();
-  const { data: profile, error: profileError } = await adminClient
-    .from("profiles")
-    .select("workspace_id")
-    .eq("id", userData.user.id)
+  // tenant via membership
+  const { data: membership } = await admin
+    .from("memberships")
+    .select("tenant_id")
+    .eq("user_id", userData.user.id)
+    .eq("is_active", true)
     .single();
 
-  if (profileError) {
-    throw new Error(`Unable to load dashboard profile: ${profileError.message}`);
+  if (!membership) return { employees: [], metrics: buildMetrics([], []) };
+
+  const tenantId = membership.tenant_id as string;
+
+  // entités (candidats + employés)
+  const { data: entityRows, error: entityError } = await admin
+    .from("entities")
+    .select("id, first_name, last_name, email, metadata, created_at, status")
+    .eq("tenant_id", tenantId)
+    .in("entity_type", ["employee", "candidate"])
+    .eq("status", "active")
+    .order("created_at", { ascending: true });
+
+  if (entityError) throw new Error(`Impossible de charger les entités : ${entityError.message}`);
+
+  const entities = entityRows ?? [];
+  if (entities.length === 0) return { employees: [], metrics: buildMetrics([], []) };
+
+  const entityIds = entities.map((e) => e.id);
+
+  // onboardings
+  const { data: onboardingRows } = await admin
+    .from("onboardings")
+    .select("id, entity_id, completion_pct, start_date")
+    .eq("tenant_id", tenantId)
+    .in("entity_id", entityIds);
+
+  const onboardingByEntity = Object.fromEntries(
+    (onboardingRows ?? []).map((o) => [o.entity_id, o])
+  );
+
+  // tâches onboarding
+  const onboardingIds = (onboardingRows ?? []).map((o) => o.id);
+  const taskRows = onboardingIds.length > 0
+    ? (await admin
+        .from("onboarding_tasks")
+        .select("id, onboarding_id, title, description, priority, completed_at")
+        .in("onboarding_id", onboardingIds)
+        .order("priority", { ascending: true })
+      ).data ?? []
+    : [];
+
+  const tasksByOnboarding: Record<string, typeof taskRows> = {};
+  for (const task of taskRows) {
+    tasksByOnboarding[task.onboarding_id] = [...(tasksByOnboarding[task.onboarding_id] ?? []), task];
   }
 
-  const typedProfile = profile as ProfileRow;
+  // documents en attente
+  const { data: docRows } = await admin
+    .from("documents")
+    .select("entity_id, signature_status")
+    .eq("tenant_id", tenantId)
+    .in("entity_id", entityIds);
 
-  if (!typedProfile.workspace_id) {
-    return buildDashboardData([], [], []);
-  }
-
-  const { data: employeeRows, error: employeesError } = await adminClient
-    .from("employees")
-    .select(
-      "id, full_name, email, title, department, manager_name, start_date, status, progress"
-    )
-    .eq("workspace_id", typedProfile.workspace_id)
-    .order("start_date", { ascending: true });
-
-  if (employeesError) {
-    throw new Error(`Unable to load dashboard employees: ${employeesError.message}`);
-  }
-
-  const employees = (employeeRows ?? []) as EmployeeRow[];
-  const employeeIds = employees.map((employee) => employee.id);
-
-  if (employeeIds.length === 0) {
-    return buildDashboardData([], [], []);
-  }
-
-  const { data: documentRows, error: documentsError } = await adminClient
-    .from("employee_documents")
-    .select("employee_id, status")
-    .eq("workspace_id", typedProfile.workspace_id)
-    .in("employee_id", employeeIds);
-
-  if (documentsError) {
-    throw new Error(`Unable to load dashboard documents: ${documentsError.message}`);
-  }
-
-  const { data: stepRows, error: stepsError } = await adminClient
-    .from("employee_onboarding_steps")
-    .select("id, employee_id, title, description, position, status")
-    .eq("workspace_id", typedProfile.workspace_id)
-    .in("employee_id", employeeIds)
-    .order("position", { ascending: true });
-
-  if (stepsError) {
-    if (isMissingOnboardingStepsTable(stepsError)) {
-      return buildDashboardData(employees, (documentRows ?? []) as EmployeeDocumentRow[], []);
+  const pendingDocsByEntity: Record<string, number> = {};
+  for (const doc of docRows ?? []) {
+    if (doc.signature_status !== "signed") {
+      pendingDocsByEntity[doc.entity_id] = (pendingDocsByEntity[doc.entity_id] ?? 0) + 1;
     }
-
-    throw new Error(`Unable to load onboarding steps: ${stepsError.message}`);
   }
 
-  return buildDashboardData(
-    employees,
-    (documentRows ?? []) as EmployeeDocumentRow[],
-    (stepRows ?? []) as OnboardingStepRow[]
-  );
+  // assemblage
+  const employees: Employee[] = entities.map((e) => {
+    const meta   = (e.metadata ?? {}) as Record<string, unknown>;
+    const ob     = onboardingByEntity[e.id];
+    const tasks  = ob ? (tasksByOnboarding[ob.id] ?? []) : [];
+    const pct    = ob?.completion_pct ?? 0;
+    const startD = ob?.start_date ?? e.created_at.slice(0, 10);
+
+    return {
+      id:         e.id,
+      name:       [e.first_name, e.last_name].filter(Boolean).join(" ") || "—",
+      email:      e.email ?? "",
+      role:       String(meta["poste"] ?? "—"),
+      accessRole: "employee" as const,
+      department: String(meta["departement"] ?? "—"),
+      manager:    "—",
+      startDate:  formatDate(startD),
+      progress:   pct,
+      status:     pctToStatus(pct),
+      pendingDocuments: pendingDocsByEntity[e.id] ?? 0,
+      onboardingSteps:  tasks.map((t, i) => ({
+        id:          t.id,
+        title:       t.title,
+        description: t.description ?? "",
+        position:    t.priority ?? i + 1,
+        status:      t.completed_at ? "done" : "todo",
+      })),
+    };
+  });
+
+  return { employees, metrics: buildMetrics(employees, docRows ?? []) };
 }
 
-function isMissingOnboardingStepsTable(error: {
-  code?: string | undefined;
-  message?: string | undefined;
-}) {
-  return error.code === "42P01" || Boolean(error.message?.includes("employee_onboarding_steps"));
-}
+// ---------------------------------------------------------------------------
+// Métriques
+// ---------------------------------------------------------------------------
 
-function buildDashboardData(
-  employeeRows: EmployeeRow[],
-  documentRows: EmployeeDocumentRow[],
-  stepRows: OnboardingStepRow[]
-): DashboardData {
-  const pendingDocumentsByEmployee = documentRows.reduce<Record<string, number>>(
-    (counts, document) => {
-      if (document.status !== "signed") {
-        counts[document.employee_id] = (counts[document.employee_id] ?? 0) + 1;
-      }
-
-      return counts;
-    },
-    {}
-  );
-  const stepsByEmployee = stepRows.reduce<Record<string, OnboardingStep[]>>((steps, step) => {
-    steps[step.employee_id] = [
-      ...(steps[step.employee_id] ?? []),
-      {
-        id: step.id,
-        title: step.title,
-        description: step.description,
-        position: step.position,
-        status: step.status
-      }
-    ];
-
-    return steps;
-  }, {});
-
-  const employees = employeeRows.map<Employee>((employee) => ({
-    id: employee.id,
-    name: employee.full_name,
-    email: employee.email,
-    role: employee.title,
-    accessRole: "employee",
-    department: employee.department,
-    manager: employee.manager_name ?? "Non assigné",
-    startDate: frenchDateFormatter.format(new Date(`${employee.start_date}T00:00:00`)),
-    progress: employee.progress,
-    status: statusMap[employee.status],
-    pendingDocuments: pendingDocumentsByEmployee[employee.id] ?? 0,
-    onboardingSteps: stepsByEmployee[employee.id] ?? []
-  }));
-
-  return {
-    employees,
-    metrics: buildMetrics(employeeRows, documentRows)
-  };
-}
-
-function buildMetrics(employeeRows: EmployeeRow[], documentRows: EmployeeDocumentRow[]): Metric[] {
-  const totalEmployees = employeeRows.length;
-  const activeEmployees = employeeRows.filter((employee) => employee.status !== "complete");
-  const completeEmployees = employeeRows.filter((employee) => employee.status === "complete");
-  const averageProgress = totalEmployees
-    ? Math.round(
-        employeeRows.reduce((total, employee) => total + employee.progress, 0) / totalEmployees
-      )
-    : 0;
-  const documentsToHandle = documentRows.filter((document) => document.status !== "signed");
-  const receivedDocuments = documentRows.filter((document) => document.status === "review");
-  const startsThisMonth = employeeRows.filter((employee) => isInCurrentMonth(employee.start_date));
+function buildMetrics(
+  employees: Employee[],
+  docs: Array<{ signature_status: string | null }>,
+): Metric[] {
+  const total     = employees.length;
+  const active    = employees.filter((e) => e.status !== "Complete").length;
+  const complete  = employees.filter((e) => e.status === "Complete").length;
+  const avgPct    = total ? Math.round(employees.reduce((s, e) => s + e.progress, 0) / total) : 0;
+  const pending   = docs.filter((d) => d.signature_status !== "signed").length;
+  const received  = docs.filter((d) => d.signature_status === "pending").length;
+  const thisMonth = employees.filter((e) => {
+    const raw = e.startDate;
+    const d   = new Date(raw);
+    return !isNaN(d.getTime()) && isCurrentMonth(d.toISOString().slice(0, 10));
+  }).length;
 
   return [
-    {
-      label: "Onboardings actifs",
-      value: String(activeEmployees.length),
-      detail: `${completeEmployees.length} parcours terminés`,
-      tone: "blue"
-    },
-    {
-      label: "Progression moyenne",
-      value: `${averageProgress}%`,
-      detail: `${totalEmployees} collaborateur${totalEmployees > 1 ? "s suivis" : " suivi"}`,
-      tone: "sage"
-    },
-    {
-      label: "Documents en attente",
-      value: String(documentsToHandle.length),
-      detail: `${receivedDocuments.length} reçus à valider`,
-      tone: "lavender"
-    },
-    {
-      label: "Arrivées ce mois-ci",
-      value: String(startsThisMonth.length),
-      detail: "Basé sur la date d'arrivée",
-      tone: "navy"
-    }
+    { label: "Onboardings actifs",    value: String(active),   detail: `${complete} parcours terminés`,               tone: "blue" },
+    { label: "Progression moyenne",   value: `${avgPct}%`,     detail: `${total} collaborateur${total > 1 ? "s" : ""} suivi${total > 1 ? "s" : ""}`, tone: "sage" },
+    { label: "Documents en attente",  value: String(pending),  detail: `${received} reçus à valider`,                 tone: "lavender" },
+    { label: "Arrivées ce mois-ci",   value: String(thisMonth),detail: "Basé sur la date d'arrivée",                  tone: "navy" },
   ];
-}
-
-function isInCurrentMonth(date: string) {
-  const now = new Date();
-  const startDate = new Date(`${date}T00:00:00`);
-
-  return (
-    startDate.getFullYear() === now.getFullYear() && startDate.getMonth() === now.getMonth()
-  );
 }

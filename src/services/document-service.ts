@@ -1,12 +1,20 @@
+"use server";
+
 import { z } from "zod";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
+
+// ---------------------------------------------------------------------------
+// Types UI
+// ---------------------------------------------------------------------------
 
 export type DocumentStatus = "pending" | "review" | "signed";
 
 export type DocumentListItem = {
   id: string;
+  entityId: string;
   employeeId: string;
+  entityName: string;
   employeeName: string;
   name: string;
   status: DocumentStatus;
@@ -14,203 +22,179 @@ export type DocumentListItem = {
   createdAt: string;
 };
 
-export type DocumentEmployeeOption = {
-  id: string;
-  name: string;
-};
+export type DocumentEntityOption = { id: string; name: string };
+export type DocumentEmployeeOption = DocumentEntityOption;
 
 export type DocumentsData = {
   documents: DocumentListItem[];
-  employees: DocumentEmployeeOption[];
+  employees: DocumentEntityOption[];
 };
 
 export const documentStatusLabels: Record<DocumentStatus, string> = {
   pending: "En attente",
-  review: "Reçu",
-  signed: "Validé"
+  review:  "Reçu",
+  signed:  "Validé",
 };
 
-const documentStatusSchema = z.enum(["pending", "review", "signed"]);
 const maxUploadSize = 20 * 1024 * 1024;
 
-type ProfileRow = {
-  id: string;
-  workspace_id: string | null;
-};
+// ---------------------------------------------------------------------------
+// Helpers session
+// ---------------------------------------------------------------------------
 
-type EmployeeRow = {
-  id: string;
-  full_name: string;
-  workspace_id: string;
-};
+async function getTenantContext() {
+  const sessionClient = await createClient();
+  const { data: userData, error } = await sessionClient.auth.getUser();
+  if (error || !userData.user) throw new Error("Vous devez être connecté.");
 
-type DocumentRow = {
-  id: string;
-  employee_id: string;
-  name: string;
-  status: DocumentStatus;
-  storage_path: string;
-  created_at: string;
-  employees: { full_name: string } | { full_name: string }[] | null;
-};
-
-export async function getDocumentsData(): Promise<DocumentsData> {
-  const { workspaceId } = await getCurrentProfile();
-  const adminClient = createAdminClient();
-
-  const { data: employeeRows, error: employeesError } = await adminClient
-    .from("employees")
-    .select("id, full_name")
-    .eq("workspace_id", workspaceId)
-    .order("full_name", { ascending: true });
-
-  if (employeesError) {
-    throw new Error(`Unable to load document employees: ${employeesError.message}`);
-  }
-
-  const { data: documentRows, error: documentsError } = await adminClient
-    .from("employee_documents")
-    .select("id, employee_id, name, status, storage_path, created_at, employees(full_name)")
-    .eq("workspace_id", workspaceId)
-    .order("created_at", { ascending: false });
-
-  if (documentsError) {
-    throw new Error(`Unable to load documents: ${documentsError.message}`);
-  }
-
-  return {
-    employees: ((employeeRows ?? []) as Pick<EmployeeRow, "id" | "full_name">[]).map(
-      (employee) => ({
-        id: employee.id,
-        name: employee.full_name
-      })
-    ),
-    documents: ((documentRows ?? []) as unknown as DocumentRow[]).map((document) => ({
-      id: document.id,
-      employeeId: document.employee_id,
-      employeeName: getDocumentEmployeeName(document.employees),
-      name: document.name,
-      status: document.status,
-      storagePath: document.storage_path,
-      createdAt: document.created_at
-    }))
-  };
-}
-
-function getDocumentEmployeeName(employee: DocumentRow["employees"]) {
-  if (Array.isArray(employee)) {
-    return employee[0]?.full_name ?? "Collaborateur supprimé";
-  }
-
-  return employee?.full_name ?? "Collaborateur supprimé";
-}
-
-export async function createEmployeeDocument(formData: FormData) {
-  const employeeId = z.string().uuid().parse(formData.get("employeeId"));
-  const name = z.string().trim().min(2).parse(formData.get("name"));
-  const file = formData.get("file");
-
-  if (!(file instanceof File) || file.size === 0) {
-    throw new Error("Un fichier est requis.");
-  }
-
-  if (file.size > maxUploadSize) {
-    throw new Error("Le fichier ne doit pas dépasser 20 Mo.");
-  }
-
-  const { userId, workspaceId } = await getCurrentProfile();
-  const adminClient = createAdminClient();
-  const { data: employee, error: employeeError } = await adminClient
-    .from("employees")
-    .select("id, workspace_id, full_name")
-    .eq("id", employeeId)
+  const admin = createAdminClient();
+  const { data: membership, error: memberError } = await admin
+    .from("memberships")
+    .select("tenant_id")
+    .eq("user_id", userData.user.id)
+    .eq("is_active", true)
     .single();
 
-  if (employeeError) {
-    throw new Error(`Impossible de charger le collaborateur: ${employeeError.message}`);
-  }
+  if (memberError || !membership) throw new Error("Aucun tenant associé à votre compte.");
 
-  const typedEmployee = employee as EmployeeRow;
+  return { userId: userData.user.id, tenantId: membership.tenant_id as string };
+}
 
-  if (typedEmployee.workspace_id !== workspaceId) {
-    throw new Error("Ce collaborateur n'appartient pas à votre workspace.");
-  }
+// ---------------------------------------------------------------------------
+// Lecture
+// ---------------------------------------------------------------------------
 
-  const extension = file.name.split(".").pop() ?? "bin";
-  const storagePath = `${workspaceId}/${employeeId}/${crypto.randomUUID()}.${extension}`;
-  const uploadOptions = {
-    cacheControl: "3600",
-    upsert: false,
-    ...(file.type ? { contentType: file.type } : {})
+export async function getDocumentsData(): Promise<DocumentsData> {
+  const { tenantId } = await getTenantContext();
+  const admin = createAdminClient();
+
+  const { data: entityRows, error: entityError } = await admin
+    .from("entities")
+    .select("id, first_name, last_name")
+    .eq("tenant_id", tenantId)
+    .in("entity_type", ["employee", "candidate"])
+    .eq("status", "active")
+    .order("last_name", { ascending: true });
+
+  if (entityError) throw new Error(`Impossible de charger les entités : ${entityError.message}`);
+
+  const entityMap = Object.fromEntries(
+    (entityRows ?? []).map((e) => [
+      e.id,
+      [e.first_name, e.last_name].filter(Boolean).join(" ") || "—",
+    ])
+  );
+
+  const entityIds = Object.keys(entityMap);
+
+  const { data: docRows, error: docsError } = await admin
+    .from("documents")
+    .select("id, entity_id, name, signature_status, file_path, created_at")
+    .eq("tenant_id", tenantId)
+    .in("entity_id", entityIds)
+    .order("created_at", { ascending: false });
+
+  if (docsError) throw new Error(`Impossible de charger les documents : ${docsError.message}`);
+
+  return {
+    employees: (entityRows ?? []).map((e) => ({
+      id:   e.id,
+      name: entityMap[e.id] ?? "—",
+    })),
+    documents: (docRows ?? []).map((d) => ({
+      id:           d.id,
+      entityId:     d.entity_id ?? "",
+      employeeId:   d.entity_id ?? "",
+      entityName:   entityMap[d.entity_id ?? ""] ?? "Collaborateur supprimé",
+      employeeName: entityMap[d.entity_id ?? ""] ?? "Collaborateur supprimé",
+      name:         d.name,
+      status:       (d.signature_status === "signed" ? "signed" : "pending") as DocumentStatus,
+      storagePath:  d.file_path,
+      createdAt:    d.created_at,
+    })),
   };
+}
 
-  const { error: uploadError } = await adminClient.storage
-    .from("employee-documents")
-    .upload(storagePath, file, uploadOptions);
+// ---------------------------------------------------------------------------
+// Upload
+// ---------------------------------------------------------------------------
 
-  if (uploadError) {
-    throw new Error(`Impossible d'uploader le document: ${uploadError.message}`);
-  }
+export async function createEntityDocument(formData: FormData) {
+  const entityId = z.string().uuid().parse(formData.get("employeeId"));
+  const name     = z.string().trim().min(2).parse(formData.get("name"));
+  const file     = formData.get("file");
 
-  const { error: insertError } = await adminClient.from("employee_documents").insert({
-    employee_id: employeeId,
-    workspace_id: workspaceId,
+  if (!(file instanceof File) || file.size === 0) throw new Error("Un fichier est requis.");
+  if (file.size > maxUploadSize) throw new Error("Le fichier ne doit pas dépasser 20 Mo.");
+
+  const { userId, tenantId } = await getTenantContext();
+  const admin = createAdminClient();
+
+  const { data: entity, error: entityError } = await admin
+    .from("entities")
+    .select("id, tenant_id")
+    .eq("id", entityId)
+    .single();
+
+  if (entityError) throw new Error(`Entité introuvable : ${entityError.message}`);
+  if (entity.tenant_id !== tenantId) throw new Error("Cette entité n'appartient pas à votre organisation.");
+
+  const ext         = file.name.split(".").pop() ?? "bin";
+  const storagePath = `${tenantId}/${entityId}/${crypto.randomUUID()}.${ext}`;
+
+  const { error: uploadError } = await admin.storage
+    .from("documents")
+    .upload(storagePath, file, {
+      cacheControl: "3600",
+      upsert: false,
+      ...(file.type ? { contentType: file.type } : {}),
+    });
+
+  if (uploadError) throw new Error(`Impossible d'uploader le document : ${uploadError.message}`);
+
+  const { error: insertError } = await admin.from("documents").insert({
+    tenant_id:        tenantId,
+    entity_id:        entityId,
+    doc_type:         "contract",
     name,
-    storage_path: storagePath,
-    status: "pending",
-    uploaded_by: userId
+    file_path:        storagePath,
+    file_size_kb:     Math.round(file.size / 1024),
+    mime_type:        file.type || null,
+    signature_status: "pending",
+    uploaded_by:      userId,
   });
 
   if (insertError) {
-    await adminClient.storage.from("employee-documents").remove([storagePath]);
-    throw new Error(`Impossible de créer le document: ${insertError.message}`);
+    await admin.storage.from("documents").remove([storagePath]);
+    throw new Error(`Impossible de créer le document : ${insertError.message}`);
   }
 }
 
-export async function updateEmployeeDocumentStatus(formData: FormData) {
+// ---------------------------------------------------------------------------
+// Mise à jour statut
+// ---------------------------------------------------------------------------
+
+export async function updateDocumentStatus(formData: FormData) {
   const documentId = z.string().uuid().parse(formData.get("documentId"));
-  const status = documentStatusSchema.parse(formData.get("status"));
-  const { workspaceId } = await getCurrentProfile();
-  const adminClient = createAdminClient();
+  const status     = z.enum(["pending", "signed"]).parse(formData.get("status"));
+  const { tenantId } = await getTenantContext();
+  const admin = createAdminClient();
 
-  const { error } = await adminClient
-    .from("employee_documents")
-    .update({ status })
+  const { error } = await admin
+    .from("documents")
+    .update({
+      signature_status: status,
+      ...(status === "signed" ? { signed_at: new Date().toISOString() } : {}),
+    })
     .eq("id", documentId)
-    .eq("workspace_id", workspaceId);
+    .eq("tenant_id", tenantId);
 
-  if (error) {
-    throw new Error(`Impossible de mettre à jour le document: ${error.message}`);
-  }
+  if (error) throw new Error(`Impossible de mettre à jour le document : ${error.message}`);
 }
 
-async function getCurrentProfile() {
-  const sessionClient = await createClient();
-  const { data: userData, error: userError } = await sessionClient.auth.getUser();
+// ---------------------------------------------------------------------------
+// Aliases de compatibilité (anciens noms utilisés par les pages existantes)
+// ---------------------------------------------------------------------------
 
-  if (userError || !userData.user) {
-    throw new Error("Vous devez être connecté pour gérer les documents.");
-  }
-
-  const adminClient = createAdminClient();
-  const { data: profile, error: profileError } = await adminClient
-    .from("profiles")
-    .select("id, workspace_id")
-    .eq("id", userData.user.id)
-    .single();
-
-  if (profileError) {
-    throw new Error(`Impossible de charger le profil utilisateur: ${profileError.message}`);
-  }
-
-  const typedProfile = profile as ProfileRow;
-
-  if (!typedProfile.workspace_id) {
-    throw new Error("Aucun workspace n'est associé à votre profil.");
-  }
-
-  return {
-    userId: typedProfile.id,
-    workspaceId: typedProfile.workspace_id
-  };
-}
+export const createEmployeeDocument       = createEntityDocument;
+export const updateEmployeeDocumentStatus = updateDocumentStatus;
