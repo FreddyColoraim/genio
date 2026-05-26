@@ -1,0 +1,115 @@
+{
+  "common": {
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "add": "Ajouter",
+    "search": "Rechercher",
+    "loading": "Chargement…",
+    "error": "Une erreur est survenue",
+    "success": "Enregistré",
+    "confirm": "Confirmer",
+    "back": "Retour",
+    "next": "Suivant",
+    "finish": "Terminer",
+    "yes": "Oui",
+    "no": "Non",
+    "or": "ou"
+  },
+  "auth": {
+    "login": "Se connecter",
+    "logout": "Se déconnecter",
+    "signup": "Créer un compte",
+    "email": "Adresse email",
+    "password": "Mot de passe",
+    "forgot_password": "Mot de passe oublié ?",
+    "no_account": "Pas encore de compte ?",
+    "already_account": "Déjà un compte ?"
+  },
+  "onboarding": {
+    "welcome": "Bienvenue sur GeniO",
+    "setup_title": "Configurons votre espace",
+    "company_name": "Nom de votre organisation",
+    "company_placeholder": "Ex : Clinique du Parc",
+    "step": "Étape {{current}} sur {{total}}"
+  },
+  "entity": {
+    "first_name": "Prénom",
+    "last_name": "Nom",
+    "email": "Email",
+    "phone": "Téléphone",
+    "birth_date": "Date de naissance",
+    "address": "Adresse",
+    "city": "Ville",
+    "postal_code": "Code postal",
+    "country": "Pays",
+    "status": {
+      "active": "Actif",
+      "inactive": "Inactif",
+      "archived": "Archivé"
+    }
+  },
+  "documents": {
+    "upload": "Déposer un document",
+    "expires_at": "Expire le",
+    "status": {
+      "valid": "Valide",
+      "expiring_soon": "Expire bientôt",
+      "expired": "Expiré",
+      "no_expiry": "Sans expiration"
+    }
+  },
+  "pipeline": {
+    "new": "Nouveau",
+    "contacted": "Contacté",
+    "interview": "Entretien",
+    "retained": "Retenu",
+    "refused": "Refusé"
+  },
+  "billing": {
+    "quote": "Devis",
+    "invoice": "Facture",
+    "credit_note": "Avoir",
+    "subtotal": "Sous-total HT",
+    "tax": "TVA",
+    "total": "Total TTC",
+    "due_at": "Échéance",
+    "status": {
+      "pending": "En attente",
+      "partial": "Partiel",
+      "paid": "Payé",
+      "overdue": "En retard",
+      "canceled": "Annulé"
+    }
+  },
+  "compliance": {
+    "score": "Score de conformité",
+    "compliant": "Conforme",
+    "attention": "Attention",
+    "non_compliant": "Non conforme",
+    "missing_docs": "Documents manquants",
+    "expiring_soon": "Expirent bientôt",
+    "overdue": "En retard"
+  },
+  "gdpr": {
+    "consent_title": "Protection de vos données",
+    "consent_body": "Conformément au RGPD, nous traitons vos données personnelles sur la base légale du contrat.",
+    "rights_title": "Vos droits RGPD",
+    "right_access": "Droit d'accès à vos données",
+    "right_erasure": "Droit à l'effacement",
+    "right_portability": "Droit à la portabilité",
+    "right_rectification": "Droit de rectification",
+    "request_submitted": "Votre demande a été soumise. Vous recevrez une réponse sous 30 jours."
+  },
+  "errors": {
+    "required": "Ce champ est requis",
+    "invalid_email": "Email invalide",
+    "weak_password": "Mot de passe trop court (6 caractères minimum)",
+    "email_already_registered": "Cet email est déjà utilisé",
+    "signup_failed": "Erreur lors de la création du compte",
+    "workspace_setup_failed": "Erreur lors de la configuration de votre espace",
+    "invalid_credentials": "Email ou mot de passe incorrect",
+    "rate_limit": "Trop de tentatives. Réessayez dans quelques minutes."
+  }
+}

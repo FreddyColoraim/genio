@@ -1,0 +1,115 @@
+{
+  "common": {
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "delete": "Löschen",
+    "edit": "Bearbeiten",
+    "add": "Hinzufügen",
+    "search": "Suchen",
+    "loading": "Laden…",
+    "error": "Ein Fehler ist aufgetreten",
+    "success": "Gespeichert",
+    "confirm": "Bestätigen",
+    "back": "Zurück",
+    "next": "Weiter",
+    "finish": "Fertigstellen",
+    "yes": "Ja",
+    "no": "Nein",
+    "or": "oder"
+  },
+  "auth": {
+    "login": "Anmelden",
+    "logout": "Abmelden",
+    "signup": "Konto erstellen",
+    "email": "E-Mail-Adresse",
+    "password": "Passwort",
+    "forgot_password": "Passwort vergessen?",
+    "no_account": "Noch kein Konto?",
+    "already_account": "Bereits ein Konto?"
+  },
+  "onboarding": {
+    "welcome": "Willkommen bei GeniO",
+    "setup_title": "Richten Sie Ihren Bereich ein",
+    "company_name": "Name Ihrer Organisation",
+    "company_placeholder": "z.B. Tierarztpraxis am Park",
+    "step": "Schritt {{current}} von {{total}}"
+  },
+  "entity": {
+    "first_name": "Vorname",
+    "last_name": "Nachname",
+    "email": "E-Mail",
+    "phone": "Telefon",
+    "birth_date": "Geburtsdatum",
+    "address": "Adresse",
+    "city": "Stadt",
+    "postal_code": "Postleitzahl",
+    "country": "Land",
+    "status": {
+      "active": "Aktiv",
+      "inactive": "Inaktiv",
+      "archived": "Archiviert"
+    }
+  },
+  "documents": {
+    "upload": "Dokument hochladen",
+    "expires_at": "Läuft ab am",
+    "status": {
+      "valid": "Gültig",
+      "expiring_soon": "Läuft bald ab",
+      "expired": "Abgelaufen",
+      "no_expiry": "Kein Ablaufdatum"
+    }
+  },
+  "pipeline": {
+    "new": "Neu",
+    "contacted": "Kontaktiert",
+    "interview": "Vorstellungsgespräch",
+    "retained": "Eingestellt",
+    "refused": "Abgelehnt"
+  },
+  "billing": {
+    "quote": "Angebot",
+    "invoice": "Rechnung",
+    "credit_note": "Gutschrift",
+    "subtotal": "Zwischensumme (netto)",
+    "tax": "MwSt.",
+    "total": "Gesamtbetrag (brutto)",
+    "due_at": "Fälligkeitsdatum",
+    "status": {
+      "pending": "Ausstehend",
+      "partial": "Teilweise bezahlt",
+      "paid": "Bezahlt",
+      "overdue": "Überfällig",
+      "canceled": "Storniert"
+    }
+  },
+  "compliance": {
+    "score": "Compliance-Score",
+    "compliant": "Konform",
+    "attention": "Aufmerksamkeit erforderlich",
+    "non_compliant": "Nicht konform",
+    "missing_docs": "Fehlende Dokumente",
+    "expiring_soon": "Laufen bald ab",
+    "overdue": "Überfällig"
+  },
+  "gdpr": {
+    "consent_title": "Datenschutz",
+    "consent_body": "Gemäß DSGVO verarbeiten wir Ihre personenbezogenen Daten auf der Rechtsgrundlage des Vertrags.",
+    "rights_title": "Ihre DSGVO-Rechte",
+    "right_access": "Auskunftsrecht",
+    "right_erasure": "Recht auf Löschung",
+    "right_portability": "Recht auf Datenübertragbarkeit",
+    "right_rectification": "Recht auf Berichtigung",
+    "request_submitted": "Ihre Anfrage wurde eingereicht. Sie erhalten innerhalb von 30 Tagen eine Antwort."
+  },
+  "errors": {
+    "required": "Dieses Feld ist erforderlich",
+    "invalid_email": "Ungültige E-Mail-Adresse",
+    "weak_password": "Passwort zu kurz (mindestens 6 Zeichen)",
+    "email_already_registered": "Diese E-Mail ist bereits registriert",
+    "signup_failed": "Kontoerstellung fehlgeschlagen",
+    "workspace_setup_failed": "Workspace-Einrichtung fehlgeschlagen",
+    "invalid_credentials": "Falsche E-Mail oder falsches Passwort",
+    "rate_limit": "Zu viele Versuche. Bitte versuchen Sie es in einigen Minuten erneut."
+  }
+}

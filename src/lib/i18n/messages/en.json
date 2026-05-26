@@ -1,0 +1,115 @@
+{
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "search": "Search",
+    "loading": "Loading…",
+    "error": "An error occurred",
+    "success": "Saved",
+    "confirm": "Confirm",
+    "back": "Back",
+    "next": "Next",
+    "finish": "Finish",
+    "yes": "Yes",
+    "no": "No",
+    "or": "or"
+  },
+  "auth": {
+    "login": "Sign in",
+    "logout": "Sign out",
+    "signup": "Create account",
+    "email": "Email address",
+    "password": "Password",
+    "forgot_password": "Forgot password?",
+    "no_account": "No account yet?",
+    "already_account": "Already have an account?"
+  },
+  "onboarding": {
+    "welcome": "Welcome to GeniO",
+    "setup_title": "Let's set up your workspace",
+    "company_name": "Organisation name",
+    "company_placeholder": "e.g. Park Veterinary Clinic",
+    "step": "Step {{current}} of {{total}}"
+  },
+  "entity": {
+    "first_name": "First name",
+    "last_name": "Last name",
+    "email": "Email",
+    "phone": "Phone",
+    "birth_date": "Date of birth",
+    "address": "Address",
+    "city": "City",
+    "postal_code": "Postcode",
+    "country": "Country",
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "archived": "Archived"
+    }
+  },
+  "documents": {
+    "upload": "Upload document",
+    "expires_at": "Expires on",
+    "status": {
+      "valid": "Valid",
+      "expiring_soon": "Expiring soon",
+      "expired": "Expired",
+      "no_expiry": "No expiry"
+    }
+  },
+  "pipeline": {
+    "new": "New",
+    "contacted": "Contacted",
+    "interview": "Interview",
+    "retained": "Hired",
+    "refused": "Declined"
+  },
+  "billing": {
+    "quote": "Quote",
+    "invoice": "Invoice",
+    "credit_note": "Credit note",
+    "subtotal": "Subtotal (excl. VAT)",
+    "tax": "VAT",
+    "total": "Total (incl. VAT)",
+    "due_at": "Due date",
+    "status": {
+      "pending": "Pending",
+      "partial": "Partial",
+      "paid": "Paid",
+      "overdue": "Overdue",
+      "canceled": "Canceled"
+    }
+  },
+  "compliance": {
+    "score": "Compliance score",
+    "compliant": "Compliant",
+    "attention": "Attention needed",
+    "non_compliant": "Non-compliant",
+    "missing_docs": "Missing documents",
+    "expiring_soon": "Expiring soon",
+    "overdue": "Overdue"
+  },
+  "gdpr": {
+    "consent_title": "Data protection",
+    "consent_body": "In accordance with GDPR, we process your personal data on the legal basis of contract.",
+    "rights_title": "Your GDPR rights",
+    "right_access": "Right of access",
+    "right_erasure": "Right to erasure",
+    "right_portability": "Right to data portability",
+    "right_rectification": "Right to rectification",
+    "request_submitted": "Your request has been submitted. You will receive a response within 30 days."
+  },
+  "errors": {
+    "required": "This field is required",
+    "invalid_email": "Invalid email address",
+    "weak_password": "Password too short (minimum 6 characters)",
+    "email_already_registered": "This email is already registered",
+    "signup_failed": "Account creation failed",
+    "workspace_setup_failed": "Workspace setup failed",
+    "invalid_credentials": "Incorrect email or password",
+    "rate_limit": "Too many attempts. Please try again in a few minutes."
+  }
+}
