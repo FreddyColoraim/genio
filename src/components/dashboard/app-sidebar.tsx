@@ -2,14 +2,15 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BarChart3, FileText, Mic, Settings, UserRoundPlus, Users } from "lucide-react";
+import { BarChart3, FileText, KanbanSquare, Mic, Settings, UserRoundPlus, Users } from "lucide-react";
 import { NexoLogo } from "@/components/nexo-logo";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
 const navItems = [
   { label: "Tableau",        href: "/dashboard", icon: BarChart3,     roles: ["admin", "hr", "manager"] },
-  { label: "Brief RH",       href: "/briefs",    icon: UserRoundPlus, roles: ["admin", "hr", "manager"] },
+  { label: "Brief RH",       href: "/briefs",    icon: UserRoundPlus,  roles: ["admin", "hr", "manager"] },
+  { label: "Pipeline",       href: "/pipeline",  icon: KanbanSquare,  roles: ["admin", "hr", "manager"] },
   { label: "Collaborateurs", href: "/employees", icon: Users,         roles: ["admin", "hr", "manager"] },
   { label: "Documents",      href: "/documents", icon: FileText,      roles: ["admin", "hr", "employee"] },
   { label: "Notes vocales",  href: "/voice",     icon: Mic,           roles: ["admin", "hr", "manager"] },

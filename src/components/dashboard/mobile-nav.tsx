@@ -2,14 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BarChart3, FileText, UserRoundPlus, Users } from "lucide-react";
+import { BarChart3, FileText, KanbanSquare, UserRoundPlus } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
-  { label: "Accueil", href: "/dashboard", icon: BarChart3 },
-  { label: "Brief", href: "/briefs", icon: UserRoundPlus },
-  { label: "Équipe", href: "/employees", icon: Users },
-  { label: "Docs", href: "/documents", icon: FileText }
+  { label: "Accueil",  href: "/dashboard", icon: BarChart3 },
+  { label: "Brief",    href: "/briefs",    icon: UserRoundPlus },
+  { label: "Pipeline", href: "/pipeline",  icon: KanbanSquare },
+  { label: "Docs",     href: "/documents", icon: FileText },
 ] as const;
 
 export function MobileNav() {
@@ -23,7 +23,7 @@ export function MobileNav() {
             "flex min-h-14 flex-col items-center justify-center gap-1 rounded-md text-xs font-medium text-muted-foreground hover:bg-accent hover:text-navy",
             pathname === item.href && "bg-accent text-navy"
           )}
-          href={item.href}
+          href={item.href as never}
           key={item.href}
         >
           <item.icon className="size-4" />
