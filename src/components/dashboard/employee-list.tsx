@@ -1,3 +1,5 @@
+import Link from "next/link";
+import { FileText } from "lucide-react";
 import type { Employee } from "@/types/employee";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,7 +20,7 @@ export function EmployeeList({ employees }: { employees: Employee[] }) {
         ) : null}
         {employees.map((employee) => (
           <div
-            className="grid gap-4 rounded-lg border bg-white p-4 md:grid-cols-[1.4fr_1fr_0.8fr_0.8fr]"
+            className="grid gap-4 rounded-lg border bg-white p-4 md:grid-cols-[1.4fr_1fr_0.8fr_0.8fr_auto]"
             key={employee.id}
           >
             <div>
@@ -40,6 +42,16 @@ export function EmployeeList({ employees }: { employees: Employee[] }) {
               <Badge variant={employee.accessRole === "hr" ? "blue" : "soft"}>
                 {employee.accessRole}
               </Badge>
+            </div>
+            <div className="flex items-center justify-end">
+              <Link
+                href={`/employees/${employee.id}?tab=docs` as never}
+                className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground hover:border-blue/40 hover:text-navy transition-colors"
+                title="Kit de documents"
+              >
+                <FileText className="size-3.5" />
+                Docs
+              </Link>
             </div>
           </div>
         ))}
