@@ -9,13 +9,49 @@
 
 drop trigger if exists on_auth_user_created on auth.users;
 drop function if exists public.handle_new_user() cascade;
+drop function if exists public.set_updated_at() cascade;
+drop function if exists public.generate_billing_number() cascade;
+drop function if exists public.current_tenant_id() cascade;
+drop function if exists public.is_member_of(uuid) cascade;
+drop function if exists public.member_role(uuid) cascade;
 
+-- Ancien schéma
 drop table if exists public.notifications cascade;
 drop table if exists public.employee_onboarding_steps cascade;
 drop table if exists public.employee_documents cascade;
 drop table if exists public.employees cascade;
-drop table if exists public.profiles cascade;
 drop table if exists public.workspaces cascade;
+
+-- Nouveau schéma GeniO (idempotence si migration partielle)
+drop table if exists public.reminders cascade;
+drop table if exists public.tenant_config cascade;
+drop table if exists public.billing_documents cascade;
+drop table if exists public.interventions cascade;
+drop table if exists public.itinerary_stops cascade;
+drop table if exists public.itinerary_sessions cascade;
+drop table if exists public.voice_notes cascade;
+drop table if exists public.pdf_outputs cascade;
+drop table if exists public.pdf_templates cascade;
+drop table if exists public.compliance_scores cascade;
+drop table if exists public.formations cascade;
+drop table if exists public.certifications cascade;
+drop table if exists public.regulations cascade;
+drop table if exists public.expiry_alerts cascade;
+drop table if exists public.documents cascade;
+drop table if exists public.onboarding_tasks cascade;
+drop table if exists public.onboardings cascade;
+drop table if exists public.checklist_templates cascade;
+drop table if exists public.pipeline_stages cascade;
+drop table if exists public.job_posts cascade;
+drop table if exists public.briefs cascade;
+drop table if exists public.entity_events cascade;
+drop table if exists public.entity_relations cascade;
+drop table if exists public.entities cascade;
+drop table if exists public.memberships cascade;
+drop table if exists public.profiles cascade;
+drop table if exists public.tenants cascade;
+drop table if exists public.resellers cascade;
+drop table if exists public.plans cascade;
 
 drop type if exists public.app_role cascade;
 drop type if exists public.onboarding_status cascade;
