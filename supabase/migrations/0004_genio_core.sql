@@ -568,9 +568,7 @@ create index idx_entities_type         on public.entities(tenant_id, entity_type
 create index idx_entities_status       on public.entities(tenant_id, status);
 create index idx_entities_assigned     on public.entities(assigned_to);
 create index idx_entities_name_search  on public.entities using gin(
-  to_tsvector('simple',
-    coalesce(first_name,'') || ' ' || coalesce(last_name,'') || ' ' || coalesce(email,'')
-  )
+  (coalesce(first_name,'') || ' ' || coalesce(last_name,'') || ' ' || coalesce(email,'')) gin_trgm_ops
 );
 create index idx_memberships_user      on public.memberships(user_id);
 create index idx_memberships_tenant    on public.memberships(tenant_id);
