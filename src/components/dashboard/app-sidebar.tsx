@@ -2,27 +2,32 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BarChart3, FileText, Settings, UserRoundPlus, Users } from "lucide-react";
+import { BarChart3, FileText, Mic, Settings, UserRoundPlus, Users } from "lucide-react";
 import { NexoLogo } from "@/components/nexo-logo";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
 const navItems = [
-  { label: "Tableau", href: "/dashboard", icon: BarChart3, roles: ["admin", "hr", "manager"] },
-  { label: "Brief RH", href: "/briefs", icon: UserRoundPlus, roles: ["admin", "hr", "manager"] },
-  { label: "Collaborateurs", href: "/employees", icon: Users, roles: ["admin", "hr", "manager"] },
-  { label: "Documents", href: "/documents", icon: FileText, roles: ["admin", "hr", "employee"] },
-  { label: "Paramètres", href: "/settings", icon: Settings, roles: ["admin"] }
+  { label: "Tableau",        href: "/dashboard", icon: BarChart3,     roles: ["admin", "hr", "manager"] },
+  { label: "Brief RH",       href: "/briefs",    icon: UserRoundPlus, roles: ["admin", "hr", "manager"] },
+  { label: "Collaborateurs", href: "/employees", icon: Users,         roles: ["admin", "hr", "manager"] },
+  { label: "Documents",      href: "/documents", icon: FileText,      roles: ["admin", "hr", "employee"] },
+  { label: "Notes vocales",  href: "/voice",     icon: Mic,           roles: ["admin", "hr", "manager"] },
+  { label: "Paramètres",     href: "/settings",  icon: Settings,      roles: ["admin"] },
 ] as const;
 
-export function AppSidebar() {
+type Props = {
+  tenantName?: string;
+};
+
+export function AppSidebar({ tenantName }: Props) {
   const pathname = usePathname();
 
   return (
     <aside className="hidden w-72 shrink-0 border-r bg-white/80 p-4 backdrop-blur lg:block">
       <div className="flex h-full flex-col">
         <div className="px-2 py-3">
-          <NexoLogo />
+          <NexoLogo name={tenantName ?? undefined} />
         </div>
         <nav className="mt-8 space-y-1">
           {navItems.map((item) => (
@@ -31,7 +36,7 @@ export function AppSidebar() {
                 "flex items-center justify-between rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition hover:bg-accent hover:text-navy",
                 pathname === item.href && "bg-accent text-navy"
               )}
-              href={item.href}
+              href={item.href as never}
               key={item.href}
             >
               <span className="flex items-center gap-3">

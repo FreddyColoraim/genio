@@ -1,14 +1,79 @@
-import { ChevronDown } from "lucide-react";
-import { Button } from "@/components/ui/button";
+"use client";
 
-export function UserMenu() {
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { ChevronDown, LogOut, Settings, User } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
+type Props = {
+  name: string;
+  email: string;
+  initials: string;
+  role: string;
+};
+
+export function UserMenu({ name, email, initials, role }: Props) {
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+
+  async function handleSignOut() {
+    setLoading(true);
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    router.push("/login");
+    router.refresh();
+  }
+
   return (
-    <Button className="bg-white text-navy hover:bg-accent" variant="outline">
-      <span className="grid size-6 place-items-center rounded-full bg-sage text-xs font-semibold">
-        HR
-      </span>
-      <span className="hidden sm:inline">Sarah Lee</span>
-      <ChevronDown className="size-4" />
-    </Button>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button className="bg-white text-navy hover:bg-accent" variant="outline">
+          <span className="grid size-6 place-items-center rounded-full bg-sage text-xs font-semibold">
+            {initials}
+          </span>
+          <span className="hidden sm:inline max-w-[140px] truncate">{name}</span>
+          <ChevronDown className="size-4 shrink-0" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-56">
+        <div className="px-3 py-2">
+          <p className="text-sm font-medium truncate">{name}</p>
+          <p className="text-xs text-muted-foreground truncate">{email}</p>
+          <span className="mt-1 inline-block rounded-md bg-accent px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-navy">
+            {role}
+          </span>
+        </div>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem asChild>
+          <a href="/settings" className="flex items-center gap-2 cursor-pointer">
+            <Settings className="size-4" />
+            Paramètres
+          </a>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <a href="/settings/profile" className="flex items-center gap-2 cursor-pointer">
+            <User className="size-4" />
+            Mon profil
+          </a>
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem
+          className="text-destructive focus:text-destructive flex items-center gap-2 cursor-pointer"
+          disabled={loading}
+          onClick={handleSignOut}
+        >
+          <LogOut className="size-4" />
+          {loading ? "Déconnexion…" : "Se déconnecter"}
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
