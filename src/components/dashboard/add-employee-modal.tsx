@@ -33,19 +33,17 @@ export function AddEmployeeModal() {
         <form action={createEmployeeAction} className="space-y-4">
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="fullName">Nom complet</Label>
-              <Input id="fullName" name="fullName" placeholder="Maya Chen" required />
+              <Label htmlFor="firstName">Prénom</Label>
+              <Input id="firstName" name="firstName" placeholder="Maya" required />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                name="email"
-                placeholder="maya@company.com"
-                required
-                type="email"
-              />
+              <Label htmlFor="lastName">Nom</Label>
+              <Input id="lastName" name="lastName" placeholder="Chen" required />
             </div>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="email">Email</Label>
+            <Input id="email" name="email" placeholder="maya@company.com" required type="email" />
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">

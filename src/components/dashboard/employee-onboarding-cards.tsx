@@ -60,7 +60,7 @@ export function EmployeeOnboardingCards({ employees }: { employees: Employee[] }
                     </div>
                     {step.status === "todo" ? (
                       <form action={completeOnboardingStepAction} className="mt-3">
-                        <input name="stepId" type="hidden" value={step.id} />
+                        <input name="taskId" type="hidden" value={step.id} />
                         <Button size="sm" type="submit" variant="outline">
                           Valider
                         </Button>

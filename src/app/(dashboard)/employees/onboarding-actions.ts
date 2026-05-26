@@ -2,11 +2,11 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { completeOnboardingStep } from "@/services/employee-service";
+import { completeOnboardingTask } from "@/services/entity-service";
 
 export async function completeOnboardingStepAction(formData: FormData) {
   try {
-    await completeOnboardingStep(formData);
+    await completeOnboardingTask(formData);
   } catch (error) {
     console.error(error);
     redirect("/dashboard?error=onboarding_step_failed");
