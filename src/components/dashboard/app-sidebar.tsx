@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BarChart3, FileText, KanbanSquare, Mic, Settings, UserRoundPlus, Users, UsersRound } from "lucide-react";
+import { BarChart3, FileText, KanbanSquare, LineChart, Mic, Settings, UserRoundPlus, Users, UsersRound } from "lucide-react";
 import { NexoLogo } from "@/components/nexo-logo";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -14,6 +14,7 @@ const navItems = [
   { label: "Mon équipe",      href: "/team",      icon: UsersRound,    roles: ["admin", "hr", "manager"] },
   { label: "Collaborateurs", href: "/employees", icon: Users,         roles: ["admin", "hr", "manager"] },
   { label: "Documents",      href: "/documents", icon: FileText,      roles: ["admin", "hr", "employee"] },
+  { label: "Analytiques",    href: "/analytics", icon: LineChart,     roles: ["admin", "hr", "manager"] },
   { label: "Notes vocales",  href: "/voice",     icon: Mic,           roles: ["admin", "hr", "manager"] },
   { label: "Paramètres",     href: "/settings",  icon: Settings,      roles: ["admin"] },
 ] as const;
