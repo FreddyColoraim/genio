@@ -2,14 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BarChart3, FileText, KanbanSquare, UserRoundPlus } from "lucide-react";
+import { BarChart3, KanbanSquare, UserRoundPlus, UsersRound } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
   { label: "Accueil",  href: "/dashboard", icon: BarChart3 },
   { label: "Brief",    href: "/briefs",    icon: UserRoundPlus },
   { label: "Pipeline", href: "/pipeline",  icon: KanbanSquare },
-  { label: "Docs",     href: "/documents", icon: FileText },
+  { label: "Équipe",   href: "/team",      icon: UsersRound },
 ] as const;
 
 export function MobileNav() {
