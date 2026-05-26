@@ -84,7 +84,7 @@ create table public.gdpr_requests (
   status        text not null default 'pending',
   -- 'pending' | 'in_progress' | 'completed' | 'refused'
   requested_at  timestamptz not null default now(),
-  deadline_at   timestamptz not null generated always as (requested_at + interval '30 days') stored,
+  deadline_at   timestamptz not null default (now() + interval '30 days'),
   completed_at  timestamptz,
   response_note text,
   export_path   text                                          -- pour les demandes de portabilité
