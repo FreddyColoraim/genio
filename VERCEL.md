@@ -3,7 +3,7 @@
 ## Dépôt Git
 
 ```
-https://github.com/FreddyColoraim/nexo-platform
+https://github.com/FreddyColoraim/genio
 ```
 
 ---
@@ -11,7 +11,7 @@ https://github.com/FreddyColoraim/nexo-platform
 ## 1. Supabase — Création du projet
 
 1. Aller sur [supabase.com](https://supabase.com) → **New project**
-2. Nom : `genio-core` (ou `nexo-rh-prod`)
+2. Nom : `GeniO`
 3. **Région : `eu-west-1` (Ireland) ou `eu-central-1` (Frankfurt)** — obligatoire pour RGPD données EU
 4. Mot de passe DB : générer et stocker dans un gestionnaire de mots de passe
 5. Attendre la création (~2 min)
@@ -131,7 +131,7 @@ https://nexo-platform.vercel.app/api/webhooks/stripe
 
 ```bash
 # Cloner
-git clone https://github.com/FreddyColoraim/nexo-platform.git
+git clone https://github.com/FreddyColoraim/genio.git
 cd nexo-platform
 
 # Installer
