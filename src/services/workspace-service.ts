@@ -98,6 +98,24 @@ export async function updateWorkspaceProfile(formData: FormData) {
 }
 
 // ---------------------------------------------------------------------------
+// Mise à jour du nom du tenant
+// ---------------------------------------------------------------------------
+
+export async function updateTenantName(name: string): Promise<void> {
+  const { tenantId } = await getTenantContext(["owner", "admin"]);
+  const trimmed = name.trim();
+  if (!trimmed || trimmed.length < 2) throw new Error("Le nom doit faire au moins 2 caractères.");
+
+  const admin = createAdminClient();
+  const { error } = await admin
+    .from("tenants")
+    .update({ name: trimmed })
+    .eq("id", tenantId);
+
+  if (error) throw new Error(`Impossible de mettre à jour le nom : ${error.message}`);
+}
+
+// ---------------------------------------------------------------------------
 // Export de compatibilité (utilisé dans services/index.ts)
 // ---------------------------------------------------------------------------
 

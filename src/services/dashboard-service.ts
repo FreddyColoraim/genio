@@ -1,4 +1,6 @@
 import type { Metric } from "@/components/dashboard/metric-card";
+import type { UpcomingArrival } from "@/components/dashboard/dashboard-upcoming";
+import type { UrgentAction } from "@/components/dashboard/dashboard-actions";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
@@ -197,4 +199,172 @@ function buildMetrics(
     { label: "Documents en attente",  value: String(pending),  detail: `${received} reçus à valider`,                 tone: "lavender" },
     { label: "Arrivées ce mois-ci",   value: String(thisMonth),detail: "Basé sur la date d'arrivée",                  tone: "navy" },
   ];
+}
+
+// ---------------------------------------------------------------------------
+// getUpcomingArrivals — onboardings dans les 14 prochains jours
+// ---------------------------------------------------------------------------
+
+export async function getUpcomingArrivals(): Promise<UpcomingArrival[]> {
+  const sessionClient = await createClient();
+  const { data: userData } = await sessionClient.auth.getUser();
+  if (!userData.user) return [];
+
+  const admin = createAdminClient();
+  const { data: membership } = await admin
+    .from("memberships")
+    .select("tenant_id")
+    .eq("user_id", userData.user.id)
+    .eq("is_active", true)
+    .single();
+  if (!membership) return [];
+
+  const tenantId = membership.tenant_id as string;
+  const now   = new Date();
+  const past7 = new Date(now.getTime() - 7  * 86400000).toISOString().slice(0, 10);
+  const in14  = new Date(now.getTime() + 14 * 86400000).toISOString().slice(0, 10);
+
+  const { data: onboardings } = await admin
+    .from("onboardings")
+    .select("id, entity_id, start_date, completion_pct")
+    .eq("tenant_id", tenantId)
+    .gte("start_date", past7)
+    .lte("start_date", in14)
+    .order("start_date", { ascending: true })
+    .limit(8);
+
+  if (!onboardings?.length) return [];
+
+  const entityIds = onboardings.map((o) => o.entity_id);
+  const { data: entities } = await admin
+    .from("entities")
+    .select("id, first_name, last_name, metadata")
+    .in("id", entityIds);
+
+  const entityMap = Object.fromEntries(
+    (entities ?? []).map((e) => [e.id, e])
+  );
+
+  return onboardings.map((ob) => {
+    const entity   = entityMap[ob.entity_id];
+    const meta     = (entity?.metadata ?? {}) as Record<string, unknown>;
+    const name     = entity ? [entity.first_name, entity.last_name].filter(Boolean).join(" ") || "—" : "—";
+    const daysUntil = ob.start_date
+      ? Math.round((new Date(ob.start_date).getTime() - now.getTime()) / 86400000)
+      : 0;
+    return {
+      id:           ob.entity_id,
+      name,
+      poste:        (meta["poste"] as string) ?? "",
+      startDate:    ob.start_date ?? now.toISOString().slice(0, 10),
+      daysUntil,
+      progress:     ob.completion_pct ?? 0,
+      onboardingId: ob.id,
+    };
+  });
+}
+
+// ---------------------------------------------------------------------------
+// getUrgentActions — docs en attente + onboardings non configurés
+// ---------------------------------------------------------------------------
+
+export async function getUrgentActions(): Promise<UrgentAction[]> {
+  const sessionClient = await createClient();
+  const { data: userData } = await sessionClient.auth.getUser();
+  if (!userData.user) return [];
+
+  const admin = createAdminClient();
+  const { data: membership } = await admin
+    .from("memberships")
+    .select("tenant_id")
+    .eq("user_id", userData.user.id)
+    .eq("is_active", true)
+    .single();
+  if (!membership) return [];
+
+  const tenantId = membership.tenant_id as string;
+  const actions: UrgentAction[] = [];
+
+  // Entities without onboarding
+  const { data: entities } = await admin
+    .from("entities")
+    .select("id, first_name, last_name, metadata")
+    .eq("tenant_id", tenantId)
+    .eq("status", "active")
+    .order("created_at", { ascending: false })
+    .limit(30);
+
+  if (entities?.length) {
+    const entityIds = entities.map((e) => e.id);
+    const { data: onboardings } = await admin
+      .from("onboardings")
+      .select("entity_id")
+      .eq("tenant_id", tenantId)
+      .in("entity_id", entityIds);
+
+    const onboardedIds = new Set((onboardings ?? []).map((o) => o.entity_id));
+
+    for (const entity of entities.slice(0, 5)) {
+      const name = [entity.first_name, entity.last_name].filter(Boolean).join(" ") || "—";
+      if (!onboardedIds.has(entity.id)) {
+        actions.push({
+          id:         `no-onb-${entity.id}`,
+          entityId:   entity.id,
+          entityName: name,
+          type:       "no_onboarding",
+          label:      "Onboarding non configuré",
+          detail:     "Aucune tâche ou document associé",
+          href:       `/employees/${entity.id}?tab=docs`,
+        });
+      }
+    }
+
+    // Kit docs pending
+    const { data: pendingDocTasks } = await admin
+      .from("onboarding_tasks")
+      .select("id, onboarding_id, title")
+      .eq("tenant_id", tenantId)
+      .eq("category", "document")
+      .is("completed_at", null)
+      .limit(20);
+
+    if (pendingDocTasks?.length) {
+      const { data: obs } = await admin
+        .from("onboardings")
+        .select("id, entity_id")
+        .in("id", [...new Set(pendingDocTasks.map((t) => t.onboarding_id))]);
+
+      const obMap   = Object.fromEntries((obs ?? []).map((o) => [o.id, o.entity_id]));
+      const nameMap = Object.fromEntries(
+        (entities ?? []).map((e) => [
+          e.id,
+          [e.first_name, e.last_name].filter(Boolean).join(" ") || "—",
+        ])
+      );
+
+      const byEntity = new Map<string, string[]>();
+      for (const task of pendingDocTasks) {
+        const entityId = obMap[task.onboarding_id] ?? "";
+        if (!entityId) continue;
+        const list = byEntity.get(entityId) ?? [];
+        list.push(task.title);
+        byEntity.set(entityId, list);
+      }
+
+      for (const [entityId, docs] of byEntity.entries()) {
+        if (actions.length >= 10) break;
+        actions.push({
+          id:         `docs-${entityId}`,
+          entityId,
+          entityName: nameMap[entityId] ?? "—",
+          type:       "pending_doc",
+          label:      `${docs.length} document${docs.length > 1 ? "s" : ""} à collecter`,
+          detail:     docs.slice(0, 2).join(", ") + (docs.length > 2 ? "…" : ""),
+          href:       `/team/${entityId}?tab=documents`,
+        });
+      }
+    }
+  }
+
+  return actions.slice(0, 8);
 }

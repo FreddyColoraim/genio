@@ -2,19 +2,25 @@ import { EmployeeOnboardingCards } from "@/components/dashboard/employee-onboard
 import { EmployeeList } from "@/components/dashboard/employee-list";
 import { UploadDocumentModal } from "@/components/dashboard/upload-document-modal";
 import { MetricCard } from "@/components/dashboard/metric-card";
-import { getDashboardData } from "@/services/dashboard-service";
+import { DashboardUpcoming } from "@/components/dashboard/dashboard-upcoming";
+import { DashboardActions } from "@/components/dashboard/dashboard-actions";
+import { getDashboardData, getUpcomingArrivals, getUrgentActions } from "@/services/dashboard-service";
 
 export const dynamic = "force-dynamic";
 
 export default async function DashboardPage() {
-  const { employees, metrics } = await getDashboardData();
+  const [{ employees, metrics }, upcomingArrivals, urgentActions] = await Promise.all([
+    getDashboardData(),
+    getUpcomingArrivals().catch(() => []),
+    getUrgentActions().catch(() => []),
+  ]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
         <div className="max-w-2xl">
           <h2 className="text-2xl font-semibold tracking-normal md:text-3xl">
-            Tableau de bord intégration
+            Tableau de bord
           </h2>
           <p className="mt-2 text-sm leading-6 text-muted-foreground">
             Suivez les parcours d'intégration, les documents en attente et les
@@ -23,11 +29,21 @@ export default async function DashboardPage() {
         </div>
         <UploadDocumentModal employees={employees} />
       </div>
+
+      {/* Métriques */}
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {metrics.map((metric) => (
           <MetricCard key={metric.label} metric={metric} />
         ))}
       </div>
+
+      {/* Arrivées imminentes */}
+      <DashboardUpcoming arrivals={upcomingArrivals} />
+
+      {/* Actions requises */}
+      <DashboardActions actions={urgentActions} />
+
+      {/* Onboarding cards + liste */}
       <EmployeeOnboardingCards employees={employees} />
       <EmployeeList employees={employees} />
     </div>

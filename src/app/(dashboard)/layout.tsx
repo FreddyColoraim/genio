@@ -4,6 +4,7 @@ import { AppSidebar } from "@/components/dashboard/app-sidebar";
 import { MobileNav } from "@/components/dashboard/mobile-nav";
 import { NotificationCenter } from "@/components/dashboard/notification-center";
 import { UserMenu } from "@/components/dashboard/user-menu";
+import { getNotifications } from "@/services/notification-service";
 
 async function getLayoutData() {
   try {
@@ -54,7 +55,10 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const data = await getLayoutData();
+  const [data, notifications] = await Promise.all([
+    getLayoutData(),
+    getNotifications().catch(() => []),
+  ]);
 
   const tenantName = data?.tenantName ?? "Mon workspace";
   const userProps = {
@@ -78,7 +82,7 @@ export default async function DashboardLayout({
                 <h1 className="text-xl font-semibold">{tenantName}</h1>
               </div>
               <div className="flex items-center gap-2">
-                <NotificationCenter />
+                <NotificationCenter notifications={notifications} count={notifications.length} />
                 <UserMenu {...userProps} />
               </div>
             </div>
