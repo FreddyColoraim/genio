@@ -74,7 +74,7 @@ export async function signUp(formData: FormData) {
     redirect(getSignupErrorPath(profile, "workspace_setup_failed"));
   }
 
-  redirect("/dashboard");
+  redirect("/onboarding" as never);
 }
 
 function getSignupErrorPath(profile: string, error: string): `/signup?${string}` {
