@@ -3,8 +3,9 @@
 import { useMemo, useState, useTransition } from "react";
 import {
   ArrowRight, BriefcaseBusiness, CheckCircle2, Clock,
-  FilePlus2, FileText, MapPin, Pencil, Plus,
+  FilePlus2, FileText, MapPin, Pencil, Plus, QrCode,
 } from "lucide-react";
+import { BriefQrModal } from "@/components/dashboard/brief-qr-modal";
 import {
   createBriefAction,
   updateBriefAction,
@@ -91,6 +92,7 @@ export function HrBriefWorkspace({ initialBriefs }: { initialBriefs: BriefItem[]
   );
   const [error, setError]           = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const [qrBrief, setQrBrief]       = useState<{ id: string; title: string } | null>(null);
 
   const selectedBrief = briefs.find((b) => b.id === selectedId) ?? null;
 
@@ -156,6 +158,14 @@ export function HrBriefWorkspace({ initialBriefs }: { initialBriefs: BriefItem[]
   }
 
   return (
+    <>
+    {qrBrief && (
+      <BriefQrModal
+        briefId={qrBrief.id}
+        briefTitle={qrBrief.title}
+        onClose={() => setQrBrief(null)}
+      />
+    )}
     <div className="grid gap-6 xl:grid-cols-[1fr_1.1fr_0.9fr]">
 
       {/* ── Colonne 1 : liste des briefs ── */}
@@ -195,38 +205,59 @@ export function HrBriefWorkspace({ initialBriefs }: { initialBriefs: BriefItem[]
         )}
 
         {briefs.map((brief) => (
-          <button
+          <div
             key={brief.id}
-            onClick={() => selectBrief(brief)}
-            type="button"
             className={cn(
-              "w-full rounded-xl border bg-white px-4 py-3 text-left transition hover:border-blue/40 hover:bg-blue/5",
+              "rounded-xl border bg-white transition",
               selectedId === brief.id && !isNew && "border-blue/40 bg-blue/5"
             )}
           >
-            <div className="flex items-start justify-between gap-2">
-              <p className="text-sm font-medium leading-snug text-navy line-clamp-2">
-                {brief.title}
+            <button
+              onClick={() => selectBrief(brief)}
+              type="button"
+              className="w-full px-4 pb-2 pt-3 text-left hover:bg-blue/5 rounded-t-xl transition"
+            >
+              <div className="flex items-start justify-between gap-2">
+                <p className="text-sm font-medium leading-snug text-navy line-clamp-2">
+                  {brief.title}
+                </p>
+                <Badge variant={statusVariant[brief.status]} className="shrink-0 text-[10px]">
+                  {statusLabels[brief.status]}
+                </Badge>
+              </div>
+              <div className="mt-2 flex items-center gap-2">
+                <Badge variant={urgencyVariant[brief.urgency]} className="text-[10px]">
+                  {urgencyLabels[brief.urgency]}
+                </Badge>
+                <span className="text-xs text-muted-foreground">{brief.contractType}</span>
+                {brief.location && (
+                  <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                    <MapPin className="size-3" />{brief.location}
+                  </span>
+                )}
+              </div>
+              <p className="mt-2 text-xs text-muted-foreground">
+                {new Date(brief.createdAt).toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" })}
               </p>
-              <Badge variant={statusVariant[brief.status]} className="shrink-0 text-[10px]">
-                {statusLabels[brief.status]}
-              </Badge>
-            </div>
-            <div className="mt-2 flex items-center gap-2">
-              <Badge variant={urgencyVariant[brief.urgency]} className="text-[10px]">
-                {urgencyLabels[brief.urgency]}
-              </Badge>
-              <span className="text-xs text-muted-foreground">{brief.contractType}</span>
-              {brief.location && (
-                <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                  <MapPin className="size-3" />{brief.location}
-                </span>
-              )}
-            </div>
-            <p className="mt-2 text-xs text-muted-foreground">
-              {new Date(brief.createdAt).toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" })}
-            </p>
-          </button>
+            </button>
+
+            {/* Bouton QR Code Salon — visible uniquement si brief ouvert */}
+            {brief.status === "open" && (
+              <div className="border-t border-slate-100 px-4 py-2">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setQrBrief({ id: brief.id, title: brief.title });
+                  }}
+                  className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-xs font-medium text-indigo-600 transition hover:bg-indigo-50"
+                >
+                  <QrCode className="size-3.5 shrink-0" />
+                  QR Code Salon
+                </button>
+              </div>
+            )}
+          </div>
         ))}
       </section>
 
@@ -427,6 +458,7 @@ export function HrBriefWorkspace({ initialBriefs }: { initialBriefs: BriefItem[]
         )}
       </aside>
     </div>
+    </>
   );
 }
 
