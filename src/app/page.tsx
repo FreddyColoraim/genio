@@ -104,14 +104,14 @@ const features = [
 ];
 
 const sectors = [
-  { icon: HeartHandshake, slug: "services-a-la-personne", name: "Services a la personne", detail: "Interventions, planning, suivi terrain" },
-  { icon: Wrench, slug: "industrie-btp", name: "Industrie & BTP", detail: "Habilitations, materiel, securite" },
-  { icon: ShieldCheck, slug: "sante-medico-social", name: "Sante & medico-social", detail: "Dossiers, contraintes, roulements" },
-  { icon: Store, slug: "commerce-distribution", name: "Commerce & distribution", detail: "Turnover, magasins, equipes" },
-  { icon: BadgeCheck, slug: "associations", name: "Associations", detail: "Salaries, benevoles, missions" },
-  { icon: Hotel, slug: "hotellerie-restauration", name: "Hotellerie & restauration", detail: "Saisonniers, shifts, tenues" },
-  { icon: Truck, slug: "transport-logistique", name: "Transport & logistique", detail: "Permis, depot, tournees" },
-  { icon: Building2, slug: "tech-startup", name: "Tech & startup", detail: "Acces, outils, objectifs 30 jours" }
+  { icon: HeartHandshake, slug: "services-a-la-personne", name: "Services à la personne",  detail: "Interventions, planning, suivi terrain",        color: "#F97316" },
+  { icon: Wrench,         slug: "industrie-btp",           name: "Industrie & BTP",          detail: "Habilitations, matériel, sécurité",             color: "#F59E0B" },
+  { icon: ShieldCheck,    slug: "sante-medico-social",     name: "Santé & médico-social",    detail: "Dossiers, contraintes, roulements",             color: "#0EA5E9" },
+  { icon: Store,          slug: "commerce-distribution",  name: "Commerce & distribution",  detail: "Turnover, magasins, équipes",                   color: "#EF4444" },
+  { icon: BadgeCheck,     slug: "associations",           name: "Associations",              detail: "Salariés, bénévoles, missions",                 color: "#8B5CF6" },
+  { icon: Hotel,          slug: "hotellerie-restauration",name: "Hôtellerie & restauration", detail: "Saisonniers, shifts, tenues",                  color: "#D97706" },
+  { icon: Truck,          slug: "transport-logistique",   name: "Transport & logistique",   detail: "Permis, dépôt, tournées",                       color: "#2563EB" },
+  { icon: Building2,      slug: "tech-startup",           name: "Tech & startup",           detail: "Accès, outils, objectifs 30 jours",             color: "#6366F1" },
 ];
 
 const featureToneClasses: Record<(typeof features)[number]["tone"], string> = {
@@ -401,21 +401,36 @@ export default function HomePage() {
             </p>
           </div>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {sectors.map(({ icon: Icon, slug, name, detail }) => (
+            {sectors.map(({ icon: Icon, slug, name, detail, color }) => (
               <Link
-                className="group motion-rise rounded-lg border border-white/10 bg-white/5 p-6 text-center transition duration-300 hover:-translate-y-1 hover:border-orange-500/50 hover:bg-white/10"
-                href={`/signup?profile=${slug}`}
+                className="group motion-rise rounded-lg border border-white/10 bg-white/5 p-6 text-center transition duration-300 hover:-translate-y-1 hover:bg-white/10"
+                href={`/secteurs/${slug}` as never}
                 key={name}
+                style={{ "--sector-color": color } as React.CSSProperties}
               >
-                <Icon className="mx-auto size-8 text-orange-500 transition duration-300 group-hover:scale-110" />
+                <Icon
+                  className="mx-auto size-8 transition duration-300 group-hover:scale-110"
+                  style={{ color }}
+                />
                 <h3 className="mt-4 font-bold">{name}</h3>
                 <p className="mt-2 text-sm text-white/45">{detail}</p>
-                <span className="mt-5 inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-xs font-black text-indigo-950 transition group-hover:bg-orange-500 group-hover:text-white">
-                  Creer mon profil
+                <span className="mt-5 inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-xs font-black text-indigo-950 transition group-hover:text-white"
+                  style={{ ["--tw-bg-opacity" as string]: "1" }}
+                >
+                  Découvrir
                   <ArrowRight className="size-3 transition group-hover:translate-x-0.5" />
                 </span>
               </Link>
             ))}
+          </div>
+          <div className="mt-10 text-center">
+            <Link
+              className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-5 py-2.5 text-sm text-white/60 transition hover:bg-white/10 hover:text-white"
+              href={"/secteurs" as never}
+            >
+              Voir toutes les pages secteur détaillées
+              <ArrowRight className="size-4" />
+            </Link>
           </div>
         </div>
       </section>
