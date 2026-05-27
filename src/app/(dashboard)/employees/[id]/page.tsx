@@ -2,7 +2,9 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, FileText, LayoutList, User } from "lucide-react";
 import { getEntityForDocs, getDocKit } from "@/services/onboarding-docs-service";
+import { getEmployeeById } from "@/services/dashboard-service";
 import { OnboardingDocSelector } from "@/components/dashboard/onboarding-doc-selector";
+import { EmployeeOnboardingCards } from "@/components/dashboard/employee-onboarding-cards";
 import { Badge } from "@/components/ui/badge";
 
 export default async function EmployeeDetailPage({
@@ -23,13 +25,19 @@ export default async function EmployeeDetailPage({
     notFound();
   }
 
-  const docKit = await getDocKit(id).catch(() => []);
+  // Chargement parallèle selon l'onglet actif
+  const [docKit, employeeData] = await Promise.all([
+    getDocKit(id).catch(() => []),
+    activeTab === "onboarding" ? getEmployeeById(id).catch(() => null) : Promise.resolve(null),
+  ]);
 
   const tabs = [
-    { key: "onboarding", label: "Onboarding",           icon: LayoutList },
-    { key: "docs",       label: "Documents d'intégration", icon: FileText },
-    { key: "profil",     label: "Profil",               icon: User },
+    { key: "onboarding", label: "Onboarding",              icon: LayoutList },
+    { key: "docs",       label: "Documents d'intégration", icon: FileText   },
+    { key: "profil",     label: "Profil",                  icon: User       },
   ];
+
+  const returnTo = `/employees/${id}?tab=onboarding`;
 
   return (
     <div className="space-y-6">
@@ -47,7 +55,14 @@ export default async function EmployeeDetailPage({
             <h2 className="text-2xl font-semibold">{entity.name}</h2>
             <Badge variant="soft">{entity.poste || "Poste non défini"}</Badge>
             {docKit.length > 0 && (
-              <Badge variant="success">{docKit.length} doc{docKit.length > 1 ? "s" : ""} sélectionné{docKit.length > 1 ? "s" : ""}</Badge>
+              <Badge variant="success">
+                {docKit.length} doc{docKit.length > 1 ? "s" : ""} sélectionné{docKit.length > 1 ? "s" : ""}
+              </Badge>
+            )}
+            {employeeData && (
+              <Badge variant={employeeData.status === "Complete" ? "success" : "soft"}>
+                {employeeData.progress}%
+              </Badge>
             )}
           </div>
           <p className="mt-1 text-sm text-muted-foreground">
@@ -81,7 +96,22 @@ export default async function EmployeeDetailPage({
         })}
       </div>
 
-      {/* Tab content */}
+      {/* ── Onglet Onboarding ── */}
+      {activeTab === "onboarding" && (
+        employeeData ? (
+          <EmployeeOnboardingCards
+            employees={[employeeData]}
+            returnTo={returnTo}
+          />
+        ) : (
+          <div className="rounded-xl border border-dashed bg-white p-8 text-center text-sm text-muted-foreground">
+            <p className="font-medium text-navy">Aucun parcours d'onboarding configuré</p>
+            <p className="mt-1">Créez un parcours depuis le tableau de bord principal ou ajoutez des tâches manuellement.</p>
+          </div>
+        )
+      )}
+
+      {/* ── Onglet Documents ── */}
       {activeTab === "docs" && (
         <OnboardingDocSelector
           entityId={id}
@@ -90,21 +120,18 @@ export default async function EmployeeDetailPage({
         />
       )}
 
-      {activeTab === "onboarding" && (
-        <div className="rounded-xl border bg-white p-6 text-sm text-muted-foreground">
-          Les étapes d'onboarding de <strong>{entity.name}</strong> sont gérées depuis le tableau de bord principal.
-        </div>
-      )}
-
+      {/* ── Onglet Profil ── */}
       {activeTab === "profil" && (
         <div className="grid gap-4 sm:grid-cols-2">
           {[
-            { label: "Nom complet",  value: entity.name },
-            { label: "Email",        value: entity.email },
-            { label: "Poste",        value: entity.poste || "—" },
-            { label: "Département",  value: entity.department || "—" },
-            { label: "Date d'arrivée", value: entity.startDate ? new Date(entity.startDate).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" }) : "—" },
-            { label: "Workspace",    value: entity.tenantName },
+            { label: "Nom complet",    value: entity.name },
+            { label: "Email",          value: entity.email },
+            { label: "Poste",          value: entity.poste || "—" },
+            { label: "Département",    value: entity.department || "—" },
+            { label: "Date d'arrivée", value: entity.startDate
+                ? new Date(entity.startDate).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })
+                : "—" },
+            { label: "Workspace",      value: entity.tenantName },
           ].map(({ label, value }) => (
             <div key={label} className="rounded-xl border bg-white p-4">
               <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{label}</p>

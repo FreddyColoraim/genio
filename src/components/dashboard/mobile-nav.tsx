@@ -2,21 +2,22 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BarChart3, KanbanSquare, UserRoundPlus, UsersRound } from "lucide-react";
+import { BarChart3, Settings, UserRoundPlus, Users, UsersRound } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
   { label: "Accueil",  href: "/dashboard", icon: BarChart3 },
-  { label: "Brief",    href: "/briefs",    icon: UserRoundPlus },
-  { label: "Pipeline", href: "/pipeline",  icon: KanbanSquare },
   { label: "Équipe",   href: "/team",      icon: UsersRound },
+  { label: "Brief",    href: "/briefs",    icon: UserRoundPlus },
+  { label: "Collab.",  href: "/employees", icon: Users },
+  { label: "Config.",  href: "/settings",  icon: Settings },
 ] as const;
 
 export function MobileNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed inset-x-3 bottom-3 z-30 grid grid-cols-4 rounded-lg border bg-white/95 p-1 shadow-soft backdrop-blur lg:hidden">
+    <nav className="fixed inset-x-3 bottom-3 z-30 grid grid-cols-5 rounded-lg border bg-white/95 p-1 shadow-soft backdrop-blur lg:hidden">
       {navItems.map((item) => (
         <Link
           className={cn(

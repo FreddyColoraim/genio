@@ -6,7 +6,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 
-export function EmployeeOnboardingCards({ employees }: { employees: Employee[] }) {
+export function EmployeeOnboardingCards({
+  employees,
+  returnTo,
+}: {
+  employees: Employee[];
+  returnTo?: string;
+}) {
   return (
     <section className="space-y-3">
       <div className="flex items-center justify-between">
@@ -60,7 +66,8 @@ export function EmployeeOnboardingCards({ employees }: { employees: Employee[] }
                     </div>
                     {step.status === "todo" ? (
                       <form action={completeOnboardingStepAction} className="mt-3">
-                        <input name="taskId" type="hidden" value={step.id} />
+                        <input name="taskId"   type="hidden" value={step.id} />
+                        <input name="returnTo" type="hidden" value={returnTo ?? ""} />
                         <Button size="sm" type="submit" variant="outline">
                           Valider
                         </Button>

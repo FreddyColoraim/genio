@@ -368,3 +368,89 @@ export async function getUrgentActions(): Promise<UrgentAction[]> {
 
   return actions.slice(0, 8);
 }
+
+// ---------------------------------------------------------------------------
+// getEmployeeById — fiche onboarding d'un seul collaborateur
+// ---------------------------------------------------------------------------
+
+export async function getEmployeeById(entityId: string): Promise<Employee | null> {
+  const sessionClient = await createClient();
+  const { data: userData } = await sessionClient.auth.getUser();
+  if (!userData.user) return null;
+
+  const admin = createAdminClient();
+  const { data: membership } = await admin
+    .from("memberships")
+    .select("tenant_id")
+    .eq("user_id", userData.user.id)
+    .eq("is_active", true)
+    .single();
+  if (!membership) return null;
+
+  const tenantId = membership.tenant_id as string;
+
+  // Entité
+  const { data: entity } = await admin
+    .from("entities")
+    .select("id, first_name, last_name, email, metadata, created_at")
+    .eq("id", entityId)
+    .eq("tenant_id", tenantId)
+    .maybeSingle();
+
+  if (!entity) return null;
+
+  const meta = (entity.metadata ?? {}) as Record<string, unknown>;
+
+  // Onboarding
+  const { data: ob } = await admin
+    .from("onboardings")
+    .select("id, completion_pct, start_date")
+    .eq("entity_id", entityId)
+    .eq("tenant_id", tenantId)
+    .maybeSingle();
+
+  // Tâches
+  let onboardingSteps: OnboardingStep[] = [];
+  if (ob) {
+    const { data: tasks } = await admin
+      .from("onboarding_tasks")
+      .select("id, title, description, priority, completed_at")
+      .eq("onboarding_id", ob.id)
+      .order("priority", { ascending: true });
+
+    onboardingSteps = (tasks ?? []).map((t, i) => ({
+      id:          t.id,
+      title:       t.title,
+      description: t.description ?? "",
+      position:    t.priority ?? i + 1,
+      status:      t.completed_at ? "done" : "todo",
+    }));
+  }
+
+  // Documents en attente
+  const { data: docs } = await admin
+    .from("documents")
+    .select("signature_status")
+    .eq("entity_id", entityId)
+    .eq("tenant_id", tenantId);
+
+  const pendingDocuments = (docs ?? []).filter((d) => d.signature_status !== "signed").length;
+
+  const pct    = ob?.completion_pct ?? 0;
+  const startD = ob?.start_date ?? entity.created_at.slice(0, 10);
+
+  return {
+    id:         entityId,
+    name:       [entity.first_name, entity.last_name].filter(Boolean).join(" ") || "—",
+    email:      entity.email ?? "",
+    role:       String(meta["poste"] ?? "—"),
+    accessRole: "employee" as const,
+    department: String(meta["departement"] ?? "—"),
+    manager:    "—",
+    startDate:  formatDate(startD),
+    progress:   pct,
+    status:     pctToStatus(pct),
+    pendingDocuments,
+    onboardingSteps,
+  };
+}

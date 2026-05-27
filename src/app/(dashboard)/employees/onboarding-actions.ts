@@ -5,6 +5,8 @@ import { redirect } from "next/navigation";
 import { completeOnboardingTask } from "@/services/entity-service";
 
 export async function completeOnboardingStepAction(formData: FormData) {
+  const returnTo = String(formData.get("returnTo") ?? "").trim() || "/dashboard";
+
   try {
     await completeOnboardingTask(formData);
   } catch (error) {
@@ -14,5 +16,6 @@ export async function completeOnboardingStepAction(formData: FormData) {
 
   revalidatePath("/dashboard");
   revalidatePath("/employees");
-  redirect("/dashboard?updated=onboarding");
+  revalidatePath(returnTo);
+  redirect(returnTo as never);
 }

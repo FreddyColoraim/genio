@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
 import { signUp } from "@/app/(auth)/actions";
 import { AuthCard } from "@/components/auth/auth-card";
 import { Button } from "@/components/ui/button";
@@ -87,6 +89,11 @@ export default async function SignupPage({
 }: {
   searchParams: Promise<{ error?: string; profile?: string }>;
 }) {
+  // Redirige les utilisateurs déjà connectés
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (user) redirect("/dashboard");
+
   const { error, profile } = await searchParams;
   const errorMessage = error ? signupErrorMessages[error] : null;
   const selectedProfile = profile ? signupProfiles[profile] : null;
