@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ChevronDown, LogOut, Settings, User } from "lucide-react";
+import { ChevronDown, LogOut, MapPin, Settings, User } from "lucide-react";
+import { TOUR_EVENT, TOUR_KEY } from "@/components/onboarding/app-tour";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import {
@@ -63,6 +64,16 @@ export function UserMenu({ name, email, initials, role }: Props) {
             <User className="size-4" />
             Mon profil
           </a>
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          className="flex items-center gap-2 cursor-pointer"
+          onClick={() => {
+            localStorage.removeItem(TOUR_KEY);
+            window.dispatchEvent(new CustomEvent(TOUR_EVENT));
+          }}
+        >
+          <MapPin className="size-4" />
+          Visite guidée
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem

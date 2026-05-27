@@ -4,6 +4,7 @@ import { AppSidebar } from "@/components/dashboard/app-sidebar";
 import { MobileNav } from "@/components/dashboard/mobile-nav";
 import { NotificationCenter } from "@/components/dashboard/notification-center";
 import { UserMenu } from "@/components/dashboard/user-menu";
+import { AppTour } from "@/components/onboarding/app-tour";
 import { getNotifications } from "@/services/notification-service";
 
 async function getLayoutData() {
@@ -70,6 +71,7 @@ export default async function DashboardLayout({
 
   return (
     <main className="min-h-screen bg-warm text-navy">
+      <AppTour autoStart />
       <div className="flex min-h-screen">
         <AppSidebar tenantName={tenantName} />
         <div className="flex min-w-0 flex-1 flex-col">

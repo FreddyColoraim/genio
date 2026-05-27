@@ -163,3 +163,73 @@
     animation: none;
   }
 }
+
+/* ── Driver.js — Nexo RH theme override ─────────────────────────────────── */
+:root {
+  --driver-popover-background-color:    #ffffff;
+  --driver-popover-title-color:         #1c2421;
+  --driver-popover-description-color:   #6b7a75;
+  --driver-popover-border-color:        #e8e0d8;
+  --driver-popover-border-radius:       12px;
+  --driver-popover-title-font-size:     15px;
+  --driver-popover-description-font-size: 13px;
+  --driver-overlay-color:               rgba(17, 24, 39, 0.65);
+  --driver-popover-progress-color:      #4f46e5;
+  --driver-popover-btn-border-radius:   8px;
+}
+
+.driver-popover {
+  box-shadow: 0 20px 40px -8px rgba(17, 24, 39, 0.18),
+              0 4px 16px -4px rgba(17, 24, 39, 0.10);
+  padding: 20px !important;
+  min-width: 280px;
+  max-width: 340px;
+}
+
+.driver-popover-title {
+  font-family: var(--font-jakarta, system-ui, sans-serif);
+  font-weight: 700 !important;
+  margin-bottom: 6px !important;
+}
+
+.driver-popover-description {
+  line-height: 1.55 !important;
+}
+
+.driver-popover-footer {
+  margin-top: 16px !important;
+  gap: 8px !important;
+}
+
+.driver-popover-btn-group button {
+  font-size: 12px !important;
+  padding: 6px 14px !important;
+  font-weight: 600 !important;
+  transition: opacity 0.15s !important;
+}
+
+.driver-popover-next-btn {
+  background: #4f46e5 !important;
+  border-color: #4f46e5 !important;
+  color: #ffffff !important;
+}
+
+.driver-popover-next-btn:hover {
+  opacity: 0.88 !important;
+}
+
+.driver-popover-prev-btn {
+  background: transparent !important;
+  border-color: #e8e0d8 !important;
+  color: #6b7a75 !important;
+}
+
+.driver-popover-close-btn {
+  color: #9ca3af !important;
+  font-size: 18px !important;
+}
+
+.driver-popover-progress-text {
+  font-size: 11px !important;
+  color: #9ca3af !important;
+}

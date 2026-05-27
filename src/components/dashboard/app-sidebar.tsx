@@ -8,15 +8,15 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
 const navItems = [
-  { label: "Tableau",        href: "/dashboard", icon: BarChart3,     roles: ["admin", "hr", "manager"] },
-  { label: "Brief RH",       href: "/briefs",    icon: UserRoundPlus,  roles: ["admin", "hr", "manager"] },
-  { label: "Pipeline",       href: "/pipeline",  icon: KanbanSquare,  roles: ["admin", "hr", "manager"] },
-  { label: "Mon équipe",      href: "/team",      icon: UsersRound,    roles: ["admin", "hr", "manager"] },
-  { label: "Collaborateurs", href: "/employees", icon: Users,         roles: ["admin", "hr", "manager"] },
-  { label: "Documents",      href: "/documents", icon: FileText,      roles: ["admin", "hr", "employee"] },
-  { label: "Analytiques",    href: "/analytics", icon: LineChart,     roles: ["admin", "hr", "manager"] },
-  { label: "Notes vocales",  href: "/voice",     icon: Mic,           roles: ["admin", "hr", "manager"] },
-  { label: "Paramètres",     href: "/settings",  icon: Settings,      roles: ["admin"] },
+  { label: "Tableau",        href: "/dashboard", icon: BarChart3,     roles: ["admin", "hr", "manager"], tourId: "tour-dashboard"  },
+  { label: "Brief RH",       href: "/briefs",    icon: UserRoundPlus, roles: ["admin", "hr", "manager"], tourId: "tour-briefs"     },
+  { label: "Pipeline",       href: "/pipeline",  icon: KanbanSquare,  roles: ["admin", "hr", "manager"], tourId: "tour-pipeline"   },
+  { label: "Mon équipe",     href: "/team",      icon: UsersRound,    roles: ["admin", "hr", "manager"], tourId: "tour-team"       },
+  { label: "Collaborateurs", href: "/employees", icon: Users,         roles: ["admin", "hr", "manager"], tourId: "tour-employees"  },
+  { label: "Documents",      href: "/documents", icon: FileText,      roles: ["admin", "hr", "employee"],tourId: "tour-documents"  },
+  { label: "Analytiques",    href: "/analytics", icon: LineChart,     roles: ["admin", "hr", "manager"], tourId: "tour-analytics"  },
+  { label: "Notes vocales",  href: "/voice",     icon: Mic,           roles: ["admin", "hr", "manager"], tourId: undefined         },
+  { label: "Paramètres",     href: "/settings",  icon: Settings,      roles: ["admin"],                  tourId: "tour-settings"   },
 ] as const;
 
 type Props = {
@@ -35,6 +35,7 @@ export function AppSidebar({ tenantName }: Props) {
         <nav className="mt-8 space-y-1">
           {navItems.map((item) => (
             <Link
+              id={item.tourId ?? undefined}
               className={cn(
                 "flex items-center justify-between rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition hover:bg-accent hover:text-navy",
                 pathname === item.href && "bg-accent text-navy"
@@ -52,7 +53,7 @@ export function AppSidebar({ tenantName }: Props) {
             </Link>
           ))}
         </nav>
-        <div className="mt-auto rounded-lg bg-navy p-4 text-white">
+        <div id="tour-pulse" className="mt-auto rounded-lg bg-navy p-4 text-white">
           <Badge variant="blue">Premium</Badge>
           <p className="mt-3 text-sm font-medium">Pulse RH</p>
           <p className="mt-1 text-xs leading-5 text-white/65">
