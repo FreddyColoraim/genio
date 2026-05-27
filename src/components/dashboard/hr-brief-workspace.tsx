@@ -11,8 +11,8 @@ import {
   updateBriefAction,
   updateBriefStatusAction,
 } from "@/app/(dashboard)/briefs/actions";
-import type { BriefItem, BriefStatus, BriefUrgency } from "@/services/brief-service";
-import { urgencyLabels, statusLabels } from "@/services/brief-service";
+import type { BriefItem, BriefStatus, BriefUrgency } from "@/services/brief-config";
+import { urgencyLabels, statusLabels } from "@/services/brief-config";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";

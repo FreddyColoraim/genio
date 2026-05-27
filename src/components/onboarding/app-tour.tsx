@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect } from "react";
 import { driver } from "driver.js";
-import "driver.js/dist/driver.css";
 
 // ── Clé localStorage ────────────────────────────────────────────────────────
 export const TOUR_KEY = "nexo_tour_v1_done";

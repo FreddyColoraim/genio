@@ -9,7 +9,7 @@ import type { UserProfile } from "@/services/profile-service";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ROLE_LABELS } from "@/services/members-service";
+import { ROLE_LABELS } from "@/services/members-config";
 import type { MemberRole } from "@/types/database.types";
 
 // ---------------------------------------------------------------------------

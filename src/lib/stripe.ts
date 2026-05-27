@@ -1,9 +1,19 @@
 import Stripe from "stripe";
 
-// Singleton Stripe côté serveur uniquement
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY ?? "", {
-  apiVersion: "2026-04-22.dahlia",
-  typescript:  true,
-});
+// Singleton Stripe côté serveur uniquement — instancié à la demande
+// pour éviter les erreurs de build quand STRIPE_SECRET_KEY n'est pas défini
+let _stripe: Stripe | null = null;
+
+export function getStripe(): Stripe {
+  if (!_stripe) {
+    const key = process.env.STRIPE_SECRET_KEY;
+    if (!key) throw new Error("STRIPE_SECRET_KEY is not configured");
+    _stripe = new Stripe(key, {
+      apiVersion: "2026-04-22.dahlia",
+      typescript:  true,
+    });
+  }
+  return _stripe;
+}
 
 export const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";

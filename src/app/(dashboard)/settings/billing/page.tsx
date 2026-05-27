@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import type { Metadata } from "next";
 import { createClient }      from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -5,7 +7,6 @@ import { PLANS_LIST, trialDaysLeft, type SubStatus } from "@/lib/plans";
 import { BillingClient } from "./billing-client";
 
 export const metadata: Metadata = { title: "Facturation" };
-export const dynamic = "force-dynamic";
 
 export default async function BillingPage({
   searchParams,

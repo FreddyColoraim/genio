@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { BriefcaseBusiness, MapPin } from "lucide-react";
@@ -6,7 +8,6 @@ import { Badge } from "@/components/ui/badge";
 import { CandidatureForm } from "./candidature-form";
 
 // Page publique — accessible sans authentification
-export const dynamic = "force-dynamic";
 
 type Props = { params: Promise<{ briefId: string }> };
 

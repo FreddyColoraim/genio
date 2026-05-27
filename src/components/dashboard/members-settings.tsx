@@ -5,8 +5,8 @@ import { Loader2, Mail, MoreHorizontal, Shield, Trash2, UserPlus } from "lucide-
 import {
   inviteMemberAction, updateMemberRoleAction, removeMemberAction,
 } from "@/app/(dashboard)/settings/actions";
-import type { MemberItem } from "@/services/members-service";
-import { ROLE_LABELS, EDITABLE_ROLES } from "@/services/members-service";
+import type { MemberItem } from "@/services/members-config";
+import { ROLE_LABELS, EDITABLE_ROLES } from "@/services/members-config";
 import type { MemberRole } from "@/types/database.types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";

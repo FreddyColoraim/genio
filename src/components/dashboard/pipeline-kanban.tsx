@@ -8,8 +8,8 @@ import {
 import { moveCandidateAction, addCandidateAction } from "@/app/(dashboard)/pipeline/actions";
 import type {
   CandidateCard, PipelineColumn, PipelineStage, AcquisitionSource,
-} from "@/services/pipeline-service";
-import { RH_STAGES, SOURCE_LABELS } from "@/services/pipeline-service";
+} from "@/services/pipeline-config";
+import { RH_STAGES, SOURCE_LABELS } from "@/services/pipeline-config";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

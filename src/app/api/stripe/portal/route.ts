@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { stripe, APP_URL } from "@/lib/stripe";
+import { getStripe, APP_URL } from "@/lib/stripe";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
@@ -31,7 +31,7 @@ export async function POST() {
       return NextResponse.json({ error: "Aucun abonnement actif." }, { status: 400 });
     }
 
-    const session = await stripe.billingPortal.sessions.create({
+    const session = await getStripe().billingPortal.sessions.create({
       customer:   tenant.stripe_customer_id as string,
       return_url: `${APP_URL}/settings/billing`,
     });

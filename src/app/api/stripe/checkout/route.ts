@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { stripe, APP_URL } from "@/lib/stripe";
+import { getStripe, APP_URL } from "@/lib/stripe";
 import { PLANS, type PlanId } from "@/lib/plans";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
     // Crée ou réutilise le customer Stripe
     let customerId = tenant.stripe_customer_id as string | null;
     if (!customerId) {
-      const customer = await stripe.customers.create({
+      const customer = await getStripe().customers.create({
         ...(user.email ? { email: user.email } : {}),
         name:     tenant.name as string,
         metadata: { tenant_id: tenant.id as string, user_id: user.id },
@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Checkout session
-    const session = await stripe.checkout.sessions.create({
+    const session = await getStripe().checkout.sessions.create({
       customer:             customerId,
       mode:                 "subscription",
       payment_method_types: ["card"],
