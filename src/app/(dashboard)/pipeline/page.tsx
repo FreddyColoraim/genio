@@ -4,12 +4,16 @@ export const dynamic = "force-dynamic";
 
 import { getPipelineData } from "@/services/pipeline-service";
 import { PipelineKanban } from "@/components/dashboard/pipeline-kanban";
+import { UpgradeGate } from "@/components/dashboard/upgrade-gate";
+import { checkAccess } from "@/lib/access";
 
 export const metadata: Metadata = {
   title: "Pipeline candidats | GeniO",
 };
 
 export default async function PipelinePage() {
+  const allowed = await checkAccess("pipeline");
+  if (!allowed) return <UpgradeGate feature="pipeline" requiredPlan="team" />;
   const { columns, briefs } = await getPipelineData().catch(() => ({
     columns: [],
     briefs: [],

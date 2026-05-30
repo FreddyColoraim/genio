@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { getBriefs } from "@/services/brief-service";
 import { HrBriefWorkspace } from "@/components/dashboard/hr-brief-workspace";
+import { UpgradeGate } from "@/components/dashboard/upgrade-gate";
+import { checkAccess } from "@/lib/access";
 
 export const dynamic = "force-dynamic";
 
@@ -9,6 +11,9 @@ export const metadata: Metadata = {
 };
 
 export default async function BriefsPage() {
+  const allowed = await checkAccess("briefs");
+  if (!allowed) return <UpgradeGate feature="briefs" requiredPlan="team" />;
+
   const briefs = await getBriefs().catch(() => []);
 
   return (

@@ -2,13 +2,17 @@ import type { Metadata } from "next";
 import { BarChart3, Clock, TrendingUp, Users } from "lucide-react";
 import { getAnalyticsData } from "@/services/analytics-service";
 import { ExportCsvButton } from "@/components/dashboard/export-csv-button";
+import { UpgradeGate } from "@/components/dashboard/upgrade-gate";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
+import { checkAccess } from "@/lib/access";
 
 export const metadata: Metadata = { title: "Analytiques" };
 export const dynamic = "force-dynamic";
 
 export default async function AnalyticsPage() {
+  const allowed = await checkAccess("analytics");
+  if (!allowed) return <UpgradeGate feature="analytics" requiredPlan="business" />;
   const data = await getAnalyticsData().catch(() => null);
 
   if (!data) {
