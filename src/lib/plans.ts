@@ -21,7 +21,8 @@ export type PlanFeature =
   | "ai_actions"          // extraction actions IA Claude
   | "analytics"           // page analytiques
   | "cron_reminders"      // rappels Cron quotidiens
-  | "profile_settings";   // profil + mot de passe
+  | "profile_settings"    // profil + mot de passe
+  | "nomade";             // module capture terrain (salon, événement)
 
 export type PlanConfig = {
   id:         PlanId;
@@ -113,6 +114,7 @@ export const PLANS: Record<PlanId, PlanConfig> = {
       "ai_actions",
       "analytics",
       "cron_reminders",
+      "nomade",
       "profile_settings",
     ],
   },
@@ -141,6 +143,7 @@ export const PLANS: Record<PlanId, PlanConfig> = {
       "ai_actions",
       "analytics",
       "cron_reminders",
+      "nomade",
       "profile_settings",
     ],
   },

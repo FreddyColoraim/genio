@@ -12,6 +12,7 @@ const FEATURE_LABELS: Partial<Record<PlanFeature, string>> = {
   export_csv:   "Export CSV",
   workspace_members: "Invitations & rôles",
   cron_reminders:    "Rappels automatiques",
+  nomade:            "Module Nomade — terrain & événements",
 };
 
 const PLAN_LABELS: Record<string, { name: string; color: string }> = {
