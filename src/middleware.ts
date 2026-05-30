@@ -2,8 +2,8 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { updateSession } from "@/lib/supabase/middleware";
 
-const PUBLIC_ROUTES   = new Set(["/", "/login", "/signup", "/secteurs"]);
-const PUBLIC_PREFIXES = ["/candidater/", "/secteurs/", "/api/candidature/"];
+const PUBLIC_ROUTES   = new Set(["/", "/login", "/signup", "/secteurs", "/forgot-password", "/reset-password"]);
+const PUBLIC_PREFIXES = ["/candidater/", "/secteurs/", "/api/candidature/", "/auth/"];
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;

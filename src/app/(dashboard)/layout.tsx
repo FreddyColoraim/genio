@@ -9,6 +9,7 @@ import { NotificationCenter } from "@/components/dashboard/notification-center";
 import { UserMenu } from "@/components/dashboard/user-menu";
 import { AppTour } from "@/components/onboarding/app-tour";
 import { getNotifications } from "@/services/notification-service";
+import { getUrgentActions } from "@/services/dashboard-service";
 
 async function getLayoutData() {
   try {
@@ -62,10 +63,16 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const [data, notifications] = await Promise.all([
+  const [data, notifications, urgentActions] = await Promise.all([
     getLayoutData(),
     getNotifications().catch(() => []),
+    getUrgentActions().catch(() => []),
   ]);
+
+  // Non authentifié → login
+  if (data === null) {
+    redirect("/login" as never);
+  }
 
   // Compte sans tenant → retour onboarding pour reprovisioning
   if (data === "no_tenant") {
@@ -84,7 +91,7 @@ export default async function DashboardLayout({
     <main className="min-h-screen bg-warm text-navy">
       <AppTour autoStart />
       <div className="flex min-h-screen">
-        <AppSidebar tenantName={tenantName} />
+        <AppSidebar tenantName={tenantName} urgentCount={urgentActions.length} />
         <div className="flex min-w-0 flex-1 flex-col">
           <header className="sticky top-0 z-20 border-b bg-warm/85 px-4 py-3 backdrop-blur md:px-6">
             <div className="flex items-center justify-between gap-3">

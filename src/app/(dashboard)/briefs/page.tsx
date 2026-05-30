@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { getBriefs } from "@/services/brief-service";
 import { HrBriefWorkspace } from "@/components/dashboard/hr-brief-workspace";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Briefs RH | GeniO",
 };

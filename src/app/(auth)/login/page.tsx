@@ -54,7 +54,12 @@ export default async function LoginPage({
           <Input id="email" name="email" placeholder="hr@nexo-rh.com" required type="email" />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="password">Mot de passe</Label>
+          <div className="flex items-center justify-between">
+            <Label htmlFor="password">Mot de passe</Label>
+            <Link className="text-xs text-muted-foreground hover:text-blue" href={"/forgot-password" as never}>
+              Mot de passe oublié ?
+            </Link>
+          </div>
           <Input id="password" name="password" placeholder="********" required type="password" />
         </div>
         <Button className="w-full" type="submit">

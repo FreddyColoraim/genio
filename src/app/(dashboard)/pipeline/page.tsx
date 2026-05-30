@@ -1,4 +1,7 @@
 import type { Metadata } from "next";
+
+export const dynamic = "force-dynamic";
+
 import { getPipelineData } from "@/services/pipeline-service";
 import { PipelineKanban } from "@/components/dashboard/pipeline-kanban";
 

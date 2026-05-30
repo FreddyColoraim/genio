@@ -1,4 +1,7 @@
 import type { Metadata } from "next";
+
+export const dynamic = "force-dynamic";
+
 import { getTeamMembers, computeTeamOverview } from "@/services/team-service";
 import { TeamOverviewCards } from "@/components/dashboard/team-overview-cards";
 import { TeamMemberList } from "@/components/dashboard/team-member-list";

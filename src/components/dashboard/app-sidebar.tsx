@@ -21,9 +21,10 @@ const navItems = [
 
 type Props = {
   tenantName?: string;
+  urgentCount?: number;
 };
 
-export function AppSidebar({ tenantName }: Props) {
+export function AppSidebar({ tenantName, urgentCount = 0 }: Props) {
   const pathname = usePathname();
 
   return (
@@ -33,31 +34,31 @@ export function AppSidebar({ tenantName }: Props) {
           <NexoLogo name={tenantName ?? undefined} />
         </div>
         <nav className="mt-8 space-y-1">
-          {navItems.map((item) => (
-            <Link
-              id={item.tourId ?? undefined}
-              className={cn(
-                "flex items-center justify-between rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition hover:bg-accent hover:text-navy",
-                pathname === item.href && "bg-accent text-navy"
-              )}
-              href={item.href as never}
-              key={item.href}
-            >
-              <span className="flex items-center gap-3">
-                <item.icon className="size-4" />
+          {navItems.map((item) => {
+            const isActive = pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href));
+            return (
+              <Link
+                id={item.tourId ?? undefined}
+                className={cn(
+                  "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition hover:bg-accent hover:text-navy",
+                  isActive && "border-l-2 border-blue bg-accent pl-[10px] text-navy"
+                )}
+                href={item.href as never}
+                key={item.href}
+              >
+                <item.icon className={cn("size-4 shrink-0", isActive && "text-blue")} />
                 {item.label}
-              </span>
-              <span className="text-[10px] uppercase tracking-[0.16em]">
-                {item.roles[0]}
-              </span>
-            </Link>
-          ))}
+              </Link>
+            );
+          })}
         </nav>
         <div id="tour-pulse" className="mt-auto rounded-lg bg-navy p-4 text-white">
           <Badge variant="blue">Premium</Badge>
           <p className="mt-3 text-sm font-medium">Pulse RH</p>
           <p className="mt-1 text-xs leading-5 text-white/65">
-            9 événements d'intégration sont à vérifier avant vendredi.
+            {urgentCount > 0
+              ? `${urgentCount} événement${urgentCount > 1 ? "s" : ""} à traiter en priorité.`
+              : "Tout est à jour — aucune action urgente."}
           </p>
         </div>
       </div>

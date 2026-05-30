@@ -4,6 +4,7 @@ import type { AuthError } from "@supabase/supabase-js";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { provisionTenant } from "@/services/tenant-service";
+import { onUserSignup } from "@/lib/brevo";
 
 export async function signIn(formData: FormData) {
   const supabase = await createClient();
@@ -74,6 +75,16 @@ export async function signUp(formData: FormData) {
     redirect(getSignupErrorPath(profile, "workspace_setup_failed"));
   }
 
+  // Email de bienvenue — fire and forget (erreur non bloquante)
+  onUserSignup({
+    email,
+    company:    workspace,
+    sector:     profile || undefined,
+    trialEndAt: new Date(Date.now() + 14 * 86400000),
+  }).catch((err: unknown) => {
+    console.error("[Brevo] onUserSignup failed:", err);
+  });
+
   redirect("/onboarding" as never);
 }
 
@@ -119,6 +130,49 @@ function getSignupErrorCode(error: AuthError) {
   }
 
   return "signup_failed";
+}
+
+export async function forgotPassword(formData: FormData) {
+  const email = String(formData.get("email") ?? "").trim();
+
+  if (!email) {
+    redirect("/forgot-password?error=invalid_email" as never);
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"}/auth/callback?next=/reset-password`,
+  });
+
+  if (error) {
+    console.error("forgotPassword failed:", error.message);
+    redirect("/forgot-password?error=reset_failed" as never);
+  }
+
+  redirect("/forgot-password?sent=1" as never);
+}
+
+export async function resetPassword(formData: FormData) {
+  const password = String(formData.get("password") ?? "");
+  const confirm  = String(formData.get("confirm")  ?? "");
+
+  if (password.length < 8) {
+    redirect("/reset-password?error=weak_password" as never);
+  }
+
+  if (password !== confirm) {
+    redirect("/reset-password?error=password_mismatch" as never);
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.auth.updateUser({ password });
+
+  if (error) {
+    console.error("resetPassword failed:", error.message);
+    redirect("/reset-password?error=reset_failed" as never);
+  }
+
+  redirect("/dashboard");
 }
 
 function getSigninErrorCode(error: AuthError) {
