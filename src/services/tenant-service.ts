@@ -51,11 +51,11 @@ export async function provisionTenant({
 
   const pack = VERTICAL_PACKS[vertical] ?? VERTICAL_PACKS['rh']!
 
-  // Récupérer le plan gratuit de départ
+  // Récupérer le plan de départ (starter — trial 14j donne accès Business)
   const { data: plan, error: planError } = await supabase
     .from('plans')
     .select('id')
-    .eq('slug', 'free')
+    .eq('slug', 'starter')
     .single()
 
   if (planError ?? !plan) {

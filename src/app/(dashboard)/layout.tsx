@@ -1,5 +1,6 @@
 export const dynamic = "force-dynamic";
 
+import { redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { AppSidebar } from "@/components/dashboard/app-sidebar";
@@ -24,6 +25,9 @@ async function getLayoutData() {
       .eq("user_id", user.id)
       .eq("is_active", true)
       .single();
+
+    // Aucun membership → compte incomplet, renvoie vers l'onboarding
+    if (!membership) return "no_tenant";
 
     // Profil utilisateur
     const { data: profile } = await admin
@@ -62,6 +66,11 @@ export default async function DashboardLayout({
     getLayoutData(),
     getNotifications().catch(() => []),
   ]);
+
+  // Compte sans tenant → retour onboarding pour reprovisioning
+  if (data === "no_tenant") {
+    redirect("/onboarding?repair=1" as never);
+  }
 
   const tenantName = data?.tenantName ?? "Mon workspace";
   const userProps = {
