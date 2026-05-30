@@ -59,7 +59,13 @@ function QuizCard({ quiz, appUrl }: { quiz: Questionnaire; appUrl: string }) {
         <Button size="sm" variant="outline" className="flex-1 gap-1.5 text-xs" onClick={copy}>
           {copied
             ? <><CheckCircle2 className="size-3 text-green-500" />Copié !</>
-            : <><Copy className="size-3" />Copier le lien</>}
+            : <><Copy className="size-3" />Lien</>}
+        </Button>
+        <Button size="sm" variant="outline" className="gap-1.5 text-xs text-blue border-blue/30 hover:bg-blue/5" asChild>
+          <a href={`/nomade/quiz-live/${quiz.id}`}>
+            <span className="size-1.5 rounded-full bg-blue animate-pulse" />
+            Live
+          </a>
         </Button>
       </div>
     </div>

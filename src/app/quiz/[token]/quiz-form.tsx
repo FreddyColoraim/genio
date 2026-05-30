@@ -13,6 +13,8 @@ type Props = {
   tenantId:        string;
   questions:       Question[];
   storageKey:      string;
+  prefillName?:    string;   // nom pré-rempli depuis le lien nominatif
+  entityId?:       string | null; // entity Nexo pour auto-push
 };
 
 type Answers = Record<string, string | string[]>;
@@ -142,8 +144,8 @@ function QuestionField({
   }
 }
 
-export function QuizForm({ questionnaireId, tenantId, questions, storageKey }: Props) {
-  const [name, setName]         = useState("");
+export function QuizForm({ questionnaireId, tenantId, questions, storageKey, prefillName = "", entityId = null }: Props) {
+  const [name, setName]         = useState(prefillName);
   const [email, setEmail]       = useState("");
   const [answers, setAnswers]   = useState<Answers>({});
   const [isOnline, setIsOnline] = useState(true);
@@ -205,6 +207,7 @@ export function QuizForm({ questionnaireId, tenantId, questions, storageKey }: P
           respondentEmail: email,
           answers,
           questions,
+          entityId: entityId ?? undefined,
         }),
       });
 
@@ -264,20 +267,34 @@ export function QuizForm({ questionnaireId, tenantId, questions, storageKey }: P
         <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>
       )}
 
-      {/* Identité */}
-      <div className="rounded-xl border bg-white p-4 space-y-3">
-        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Vos informations</p>
-        <div className="grid gap-3 sm:grid-cols-2">
-          <div className="space-y-1.5">
-            <Label htmlFor="name" className="text-xs">Prénom et nom *</Label>
-            <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Sophie Martin" required className="text-base h-11" />
+      {/* Identité — masquée si le nom est pré-rempli via lien nominatif */}
+      {prefillName ? (
+        /* Nom pré-rempli : on affiche juste un champ email optionnel */
+        <div className="rounded-xl border border-green-200 bg-green-50 p-4 space-y-3">
+          <div className="flex items-center gap-2">
+            <div className="size-2 rounded-full bg-green-500" />
+            <p className="text-xs font-semibold text-green-700">Identifié comme : {name}</p>
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="email" className="text-xs">Email</Label>
-            <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="sophie@entreprise.com" className="text-base h-11" />
+            <Label htmlFor="email" className="text-xs">Email (optionnel — pour recevoir vos résultats)</Label>
+            <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="sophie@entreprise.com" className="text-base h-11 bg-white" />
           </div>
         </div>
-      </div>
+      ) : (
+        <div className="rounded-xl border bg-white p-4 space-y-3">
+          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Vos informations</p>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="space-y-1.5">
+              <Label htmlFor="name" className="text-xs">Prénom et nom *</Label>
+              <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Sophie Martin" required className="text-base h-11" />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="email" className="text-xs">Email</Label>
+              <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="sophie@entreprise.com" className="text-base h-11" />
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Questions */}
       {questions.map((q, i) => (

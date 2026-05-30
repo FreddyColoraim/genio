@@ -179,6 +179,7 @@ export async function submitQuestionnaireResponse(input: {
   respondentEmail: string;
   answers:         Record<string, string | string[]>;
   questions:       Question[];
+  entityId?:       string;
 }): Promise<{ id: string; score: number; maxScore: number }> {
   const admin = createAdminClient();
 
@@ -206,6 +207,7 @@ export async function submitQuestionnaireResponse(input: {
     .insert({
       tenant_id:        input.tenantId,
       questionnaire_id: input.questionnaireId,
+      entity_id:        input.entityId ?? null,
       respondent_name:  input.respondentName  || null,
       respondent_email: input.respondentEmail || null,
       answers:          input.answers as unknown as object,

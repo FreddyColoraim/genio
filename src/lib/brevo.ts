@@ -254,6 +254,99 @@ export async function onTrialReminder(params: {
   });
 }
 
+// =============================================================================
+// SMS transactionnel
+// =============================================================================
+
+/**
+ * Envoie un SMS transactionnel via Brevo.
+ * Le sender doit être validé dans le dashboard Brevo (max 11 caractères).
+ */
+export async function brevoSendSMS(params: {
+  to:      string;          // numéro E.164 ex: "+33612345678"
+  content: string;          // texte du SMS (max 160 chars par SMS)
+  sender?: string;          // ex: "NomadeRH" (défaut)
+}) {
+  return brevoFetch("/transactionalSMS/sms", {
+    method: "POST",
+    body: JSON.stringify({
+      sender:    params.sender ?? "NomadeRH",
+      recipient: params.to,
+      content:   params.content,
+      type:      "transactional",
+    }),
+  });
+}
+
+/**
+ * Normalise un numéro de téléphone français vers le format E.164.
+ * "06 12 34 56 78" → "+33612345678"
+ */
+export function normalizePhone(raw: string): string | null {
+  const digits = raw.replace(/\D/g, "");
+  if (digits.startsWith("33") && digits.length === 11) return `+${digits}`;
+  if (digits.startsWith("0") && digits.length === 10)  return `+33${digits.slice(1)}`;
+  if (digits.length === 9)                              return `+33${digits}`;
+  return null;
+}
+
+// =============================================================================
+// Scénarios Nomade Formation
+// =============================================================================
+
+/**
+ * Envoie le lien quiz au stagiaire par SMS ET email.
+ * Le lien inclut l'entityId pour pré-remplir le formulaire et lier la réponse.
+ */
+export async function onQuizSentToRookie(params: {
+  email?:       string | undefined;
+  phone?:       string | undefined;
+  firstName?:   string | undefined;
+  lastName?:    string | undefined;
+  quizToken:    string;
+  quizTitle:    string;
+  entityId?:    string | undefined;
+}) {
+  const { email, phone, firstName, lastName, quizToken, quizTitle, entityId } = params;
+  const name    = [firstName, lastName].filter(Boolean).join(" ") || "Stagiaire";
+  const appUrl  = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+  const nameEnc = encodeURIComponent(name);
+  const eidPart = entityId ? `&eid=${entityId}` : "";
+  const link    = `${appUrl}/quiz/${quizToken}?name=${nameEnc}${eidPart}`;
+
+  const promises: Promise<unknown>[] = [];
+
+  // ── SMS (prioritaire — taux ouverture ~95%) ──────────────────────────────
+  if (phone) {
+    const normalized = normalizePhone(phone);
+    if (normalized) {
+      promises.push(
+        brevoSendSMS({
+          to:      normalized,
+          content: `Bonjour ${firstName ?? ""},\nVotre quiz "${quizTitle}" vous attend :\n${link}\nNomade RH`,
+        })
+      );
+    }
+  }
+
+  // ── Email (fallback ou complémentaire) ───────────────────────────────────
+  if (email) {
+    promises.push(
+      brevoSendTemplate({
+        templateId: BREVO_TEMPLATES.welcome,
+        to: [{ email, name }],
+        params: {
+          PRENOM: firstName ?? name,
+          FORMATION: quizTitle,
+          LIEN: link,
+        },
+      })
+    );
+  }
+
+  await Promise.allSettled(promises);
+}
+
 /**
  * Capture d'un lead depuis une landing page secteur.
  * Ajoute à la liste prospects + liste secteur sans envoi d'email immédiat.

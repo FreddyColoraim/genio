@@ -12,8 +12,10 @@ import {
   createQuestionnaire,
   correctResponse,
   type Question,
-  type QuestionType,
 } from "@/services/questionnaire-service";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { createClient }      from "@/lib/supabase/server";
+import { onQuizSentToRookie } from "@/lib/brevo";
 
 // ---------------------------------------------------------------------------
 // Créer une session de formation
@@ -137,6 +139,82 @@ export async function correctResponseAction(formData: FormData): Promise<Correct
     return { success: true };
   } catch (err) {
     if (err instanceof z.ZodError) return { success: false, error: err.errors[0]?.message ?? "Champs invalides." };
+    return { success: false, error: err instanceof Error ? err.message : "Erreur inconnue." };
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Envoyer un quiz à tous les stagiaires d'une session (SMS + email pré-remplis)
+// ---------------------------------------------------------------------------
+
+export type SendQuizResult =
+  | { success: true; sent: number; failed: number }
+  | { success: false; error: string };
+
+export async function sendQuizToRookiesAction(
+  questionnaireId: string,
+): Promise<SendQuizResult> {
+  try {
+    const sessionClient = await createClient();
+    const { data: { user } } = await sessionClient.auth.getUser();
+    if (!user) return { success: false, error: "Non authentifié." };
+
+    const admin = createAdminClient();
+
+    // Récupérer le questionnaire (titre + token + session_id + tenant_id)
+    const { data: quiz, error: qErr } = await admin
+      .from("questionnaires")
+      .select("title, access_token, session_id, tenant_id")
+      .eq("id", questionnaireId)
+      .single();
+
+    if (qErr || !quiz) return { success: false, error: "Questionnaire introuvable." };
+
+    // Récupérer les assignments de la session liée
+    const { data: assignments } = await admin
+      .from("training_assignments")
+      .select("entity_id, entities(first_name, last_name, email, metadata)")
+      .eq("session_id",  quiz.session_id)
+      .eq("tenant_id",   quiz.tenant_id);
+
+    if (!assignments?.length) return { success: false, error: "Aucun stagiaire assigné à cette session." };
+
+    let sent = 0;
+    let failed = 0;
+
+    for (const a of assignments) {
+      const entity = a.entities as unknown as {
+        first_name: string | null;
+        last_name:  string | null;
+        email:      string | null;
+        metadata:   Record<string, string> | null;
+      } | null;
+
+      if (!entity) { failed++; continue; }
+
+      const email     = entity.email ?? undefined;
+      const phone     = entity.metadata?.["phone"] ?? undefined;
+      const firstName = entity.first_name ?? undefined;
+      const lastName  = entity.last_name  ?? undefined;
+
+      if (!email && !phone) { failed++; continue; }
+
+      await onQuizSentToRookie({
+        email,
+        phone,
+        firstName,
+        lastName,
+        quizToken:  quiz.access_token as string,
+        quizTitle:  quiz.title as string,
+        entityId:   a.entity_id as string,
+      }).catch(() => { failed++; });
+
+      sent++;
+    }
+
+    revalidatePath("/nomade");
+    return { success: true, sent, failed };
+  } catch (err) {
     return { success: false, error: err instanceof Error ? err.message : "Erreur inconnue." };
   }
 }
