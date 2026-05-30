@@ -4,6 +4,7 @@ import { updateSession } from "@/lib/supabase/middleware";
 
 const PUBLIC_ROUTES   = new Set(["/", "/login", "/signup", "/secteurs", "/forgot-password", "/reset-password"]);
 const PUBLIC_PREFIXES = ["/candidater/", "/secteurs/", "/api/candidature/", "/auth/", "/quiz/", "/api/quiz/", "/formateur/"];
+// /terrain/ et /formation/ sont des apps protégées (auth gérée dans leur layout)
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
