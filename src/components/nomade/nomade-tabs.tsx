@@ -1,12 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { BookOpen, ClipboardList, MapPin } from "lucide-react";
+import { BookOpen, ClipboardList, MapPin, UserCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const TABS = [
   { id: "contacts",      label: "Contacts",      icon: MapPin         },
   { id: "formations",    label: "Formations",    icon: BookOpen       },
+  { id: "formateurs",    label: "Formateurs",    icon: UserCheck      },
   { id: "questionnaires",label: "Questionnaires",icon: ClipboardList  },
 ] as const;
 
