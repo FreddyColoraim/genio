@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="114" fill="#1B2A4A"/>
+  <!-- Location pin -->
+  <path d="M256 120c-57.4 0-104 46.6-104 104 0 78 104 168 104 168s104-90 104-168c0-57.4-46.6-104-104-104z" fill="#fff" opacity=".95"/>
+  <circle cx="256" cy="224" r="36" fill="#1B2A4A"/>
+  <!-- RH text -->
+  <text x="256" y="440" font-family="Inter,Arial,sans-serif" font-weight="900" font-size="80" fill="#5B7FFF" text-anchor="middle" letter-spacing="2">RH</text>
+</svg>

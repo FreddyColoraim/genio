@@ -1,10 +1,44 @@
 export const dynamic = "force-dynamic";
 
-import { redirect } from "next/navigation";
+import type { Metadata, Viewport } from "next";
+import { redirect }          from "next/navigation";
 import { createClient }      from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { NomadeRhNav }       from "@/components/nomade-rh/nomade-rh-nav";
+import { RegisterSW }        from "@/components/pwa/register-sw";
+import { InstallPrompt }     from "@/components/pwa/install-prompt";
 
+// ── PWA metadata ──────────────────────────────────────────────────────────
+export const metadata: Metadata = {
+  title:       "Nomade RH",
+  description: "Capture terrain · Pipeline candidats · Notes vocales IA",
+  manifest:    "/manifest-terrain.json",
+  appleWebApp: {
+    capable:       true,
+    title:         "Nomade RH",
+    statusBarStyle: "black-translucent",
+  },
+  icons: {
+    apple: "/icons/nomade-rh.svg",
+    icon:  "/icons/nomade-rh.svg",
+  },
+  other: {
+    "mobile-web-app-capable":         "yes",
+    "apple-mobile-web-app-capable":   "yes",
+    "application-name":               "Nomade RH",
+  },
+};
+
+export const viewport: Viewport = {
+  width:               "device-width",
+  initialScale:        1,
+  maximumScale:        1,
+  userScalable:        false,
+  themeColor:          "#1B2A4A",
+  viewportFit:         "cover",
+};
+
+// ── Auth guard ────────────────────────────────────────────────────────────
 async function getUser() {
   try {
     const s = await createClient();
@@ -24,10 +58,12 @@ export default async function TerrainLayout({ children }: { children: React.Reac
   if (!user) redirect("/login");
   return (
     <div className="flex min-h-screen flex-col bg-[#EEF2FF]">
+      <RegisterSW />
       <div className="mx-auto flex w-full max-w-[430px] flex-1 flex-col" style={{ minHeight: "100dvh" }}>
         {children}
         <NomadeRhNav />
       </div>
+      <InstallPrompt appName="Nomade RH" appColor="#1B2A4A" />
     </div>
   );
 }

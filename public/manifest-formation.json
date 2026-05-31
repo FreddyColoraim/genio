@@ -1,0 +1,47 @@
+{
+  "name": "Nomade Formation",
+  "short_name": "Formation",
+  "description": "Sessions de formation, émargement QR, exercices et quiz",
+  "start_url": "/formation",
+  "scope": "/formation",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#F0FDF4",
+  "theme_color": "#0B3D2E",
+  "lang": "fr",
+  "categories": ["business", "education"],
+  "icons": [
+    {
+      "src": "/icons/nomade-formation.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/nomade-formation-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/nomade-formation-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Mes sessions",
+      "short_name": "Sessions",
+      "url": "/formation/sessions",
+      "icons": [{ "src": "/icons/nomade-formation.svg", "sizes": "any" }]
+    },
+    {
+      "name": "Émargement",
+      "short_name": "Émarger",
+      "url": "/formation/emargement",
+      "icons": [{ "src": "/icons/nomade-formation.svg", "sizes": "any" }]
+    }
+  ]
+}

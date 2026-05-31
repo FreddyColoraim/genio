@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="114" fill="#0B3D2E"/>
+  <!-- Graduation cap -->
+  <path d="M256 150 L380 210 L256 270 L132 210 Z" fill="#fff" opacity=".95"/>
+  <path d="M320 240 L320 300 C320 330 290 355 256 355 C222 355 192 330 192 300 L192 240 L256 270 Z" fill="#4ADE80" opacity=".9"/>
+  <line x1="380" y1="210" x2="380" y2="275" stroke="#fff" stroke-width="12" stroke-linecap="round"/>
+  <circle cx="380" cy="285" r="14" fill="#4ADE80"/>
+  <!-- F text -->
+  <text x="256" y="445" font-family="Inter,Arial,sans-serif" font-weight="900" font-size="72" fill="#4ADE80" text-anchor="middle" letter-spacing="2">Formation</text>
+</svg>

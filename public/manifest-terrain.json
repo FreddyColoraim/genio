@@ -1,0 +1,56 @@
+{
+  "name": "Nomade RH",
+  "short_name": "Nomade RH",
+  "description": "Capture terrain, pipeline candidats, notes vocales IA",
+  "start_url": "/terrain",
+  "scope": "/terrain",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#EEF2FF",
+  "theme_color": "#1B2A4A",
+  "lang": "fr",
+  "categories": ["business", "productivity"],
+  "icons": [
+    {
+      "src": "/icons/nomade-rh.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/nomade-rh-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/nomade-rh-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/icons/nomade-rh.svg",
+      "sizes": "390x844",
+      "type": "image/svg+xml",
+      "form_factor": "narrow",
+      "label": "Tableau de bord Nomade RH"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Capturer un contact",
+      "short_name": "Capturer",
+      "url": "/terrain/capture",
+      "icons": [{ "src": "/icons/nomade-rh.svg", "sizes": "any" }]
+    },
+    {
+      "name": "Mes contacts",
+      "short_name": "Contacts",
+      "url": "/terrain/contacts",
+      "icons": [{ "src": "/icons/nomade-rh.svg", "sizes": "any" }]
+    }
+  ]
+}
